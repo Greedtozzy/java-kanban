@@ -4,8 +4,8 @@ import java.util.ArrayList;
 
 public class Epic extends Task {
 
-    public Epic(String name, String description, String status) {
-        super(name, description, status);
+    public Epic(String name, String description, String status, int id) {
+        super(name, description, status, id);
     }
     public ArrayList<Integer> subTasksIds = new ArrayList<>(); // Хранение списка подзадач эпика
 

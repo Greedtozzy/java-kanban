@@ -1,12 +1,5 @@
 /* Доброго времени суток!
-На всякий случай сделал меню, чтобы проверить работоспособность приложения.
-На вебинаре с наставником задал вопрос по наполнению класса TaskManager.
-Получил совет - все методы по работе с задачами(всех типов), писать внутри одного класса.
-Была еще идея создать класс Service, из которого были бы наследованы классы, выполняющие однотипные задачи.
-Как пример - класс Creator собрал бы в себе все методы по созданию задач.
-
-Еще немного про проверку статуса у эпика. Метод получился большой и страшный.
-Сокурсники обсуждали такую штуку, как enum. Но наставник посоветовал оставить её использование до следующего ТЗ=)
+Все переделал. Надеюсь, что теперь все правильно =)
  */
 
 import model.Epic;
@@ -42,7 +35,9 @@ public class Main {
                     String epicName = scanner.nextLine();
                     System.out.println("описание");
                     String epicDescription = scanner.nextLine();
-                    taskManager.createNewEpic(new Epic(epicName, epicDescription));
+                    Epic epic = new Epic(epicName, epicDescription);
+                    taskManager.createNewEpic(epic);
+                    System.out.println(epic);
                     break;
                 case "3":
                     System.out.println("Введите название и описание");
@@ -51,7 +46,9 @@ public class Main {
                     String subTaskDescription = scanner.nextLine();
                     System.out.println("№ эпика");
                     int epicId = scanner.nextInt();
-                    taskManager.createNewSubTask(new SubTask(subTaskName, subTaskDescription), epicId);
+                    SubTask subTask = new SubTask(subTaskName, subTaskDescription, epicId);
+                    taskManager.createNewSubTask(subTask);
+                    System.out.println(subTask);
                     break;
                 case "4":
                     taskManager.deleteAllTasks();
@@ -86,7 +83,7 @@ public class Main {
                     String status = scanner.nextLine();
                     System.out.println("id");
                     int id = scanner.nextInt();
-                    taskManager.updateTask(new Task(name, description, status), id);
+                    taskManager.updateTask(new Task(name, description, status, id));
                     break;
                 case "11":
                     System.out.println("Название");
@@ -97,10 +94,10 @@ public class Main {
                     status = scanner.nextLine();
                     System.out.println("id");
                     id = scanner.nextInt();
-                    taskManager.updateEpic(new Epic(name, description, status), id);
+                    taskManager.updateEpic(new Epic(name, description, status, id));
                     break;
                 case"12":
-                    System.out.println("название");
+                    System.out.println("Название");
                     name = scanner.nextLine();
                     System.out.println("описание");
                     description = scanner.nextLine();
@@ -108,7 +105,9 @@ public class Main {
                     status = scanner.nextLine();
                     System.out.println("id");
                     id = scanner.nextInt();
-                    taskManager.updateSubTask(new SubTask(name, description, status), id);
+                    System.out.println("epicId");
+                    epicId = scanner.nextInt();
+                    taskManager.updateSubTask(new SubTask(name, description, status, id, epicId));
                     break;
                 case "13":
                     taskManager.getListAllTasks();
