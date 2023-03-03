@@ -1,10 +1,13 @@
 /* Доброго времени суток!
-Все переделал. Надеюсь, что теперь все правильно =)
+Сделал тестер, который можно вызвать из меню. Команда - 99
+
  */
 
 import model.Epic;
 import model.SubTask;
 import model.Task;
+import model.TaskStatus;
+import service.Managers;
 import service.TaskManager;
 
 import java.util.Scanner;
@@ -12,7 +15,7 @@ import java.util.Scanner;
 public class Main {
 
     public static void main(String[] args) {
-        TaskManager taskManager = new TaskManager();
+        TaskManager taskManager = Managers.getDefault();
         Scanner scanner = new Scanner(System.in);
 
 
@@ -80,7 +83,7 @@ public class Main {
                     System.out.println("описание");
                     String description = scanner.nextLine();
                     System.out.println("статус");
-                    String status = scanner.nextLine();
+                    TaskStatus status = TaskStatus.valueOf(scanner.nextLine());
                     System.out.println("id");
                     int id = scanner.nextInt();
                     taskManager.updateTask(new Task(name, description, status, id));
@@ -91,7 +94,7 @@ public class Main {
                     System.out.println("описание");
                     description = scanner.nextLine();
                     System.out.println("статус");
-                    status = scanner.nextLine();
+                    status = TaskStatus.valueOf(scanner.nextLine());
                     System.out.println("id");
                     id = scanner.nextInt();
                     taskManager.updateEpic(new Epic(name, description, status, id));
@@ -102,7 +105,7 @@ public class Main {
                     System.out.println("описание");
                     description = scanner.nextLine();
                     System.out.println("статус");
-                    status = scanner.nextLine();
+                    status = TaskStatus.valueOf(scanner.nextLine());
                     System.out.println("id");
                     id = scanner.nextInt();
                     System.out.println("epicId");
@@ -122,6 +125,7 @@ public class Main {
                     System.out.println("id");
                     id = scanner.nextInt();
                     taskManager.getTaskById(id);
+                    System.out.println(taskManager.getTaskById(id));
                     break;
                 case "17":
                     System.out.println("id");
@@ -138,6 +142,14 @@ public class Main {
                     id = scanner.nextInt();
                     taskManager.getSubTasksByEpicId(id);
                     break;
+                case "20":
+                    Managers.getDefaultHistory().getHistory();
+                    System.out.println(Managers.getDefaultHistory().getHistory());
+                case "99":
+                    test(taskManager);
+                    break;
+                case "0":
+                    return;
                 default:
                     break;
             }
@@ -165,6 +177,34 @@ public class Main {
         System.out.println("17 - get epic by id");
         System.out.println("18 - get subTask by id");
         System.out.println("19 - get subTasks by epicId");
+        System.out.println("20 - get tasks call history");
+        System.out.println("99 - test");
         System.out.println("0 - exit");
+    }
+
+    public static void test(TaskManager taskManager) {
+        Task task = new Task("taskName", "taskDescription");
+        taskManager.createNewTask(task);
+        System.out.println(task);
+
+        Epic epic = new Epic("epicName", "epicDescription");
+        taskManager.createNewEpic(epic);
+        System.out.println(epic);
+
+        SubTask subTask = new SubTask("subTaskName", "subTaskDescription", epic.getId());
+        taskManager.createNewSubTask(subTask);
+        System.out.println(subTask);
+
+        taskManager.getTaskById(1);
+        System.out.println(taskManager.tasks.get(1));
+
+        taskManager.getEpicById(2);
+        System.out.println(taskManager.epics.get(2));
+
+        taskManager.getSubTaskById(3);
+        System.out.println(taskManager.subTasks.get(3));
+
+        Managers.getDefaultHistory().getHistory();
+        System.out.println(Managers.getDefaultHistory().getHistory());
     }
 }
