@@ -5,13 +5,9 @@ import model.SubTask;
 import model.Task;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.List;
 
 public interface TaskManager {
-
-    HashMap<Integer, Task> tasks = new HashMap<>(); // Хранение задач
-    HashMap<Integer, Epic> epics = new HashMap<>(); // Хранение эпиков
-    HashMap<Integer, SubTask> subTasks = new HashMap<>(); // Хранение подзадач
 
     void createNewTask(Task task);
     // Метод, создающий новую задачу
@@ -81,4 +77,6 @@ public interface TaskManager {
     // Метод, выводящий список подзадач по id эпика.
 
     void checkEpicStatus(int epicId);
+
+    List<Task> getHistory();
 }

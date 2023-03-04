@@ -6,9 +6,16 @@ import model.Task;
 import model.TaskStatus;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 public class InMemoryTaskManager implements TaskManager {
     private int id = 1; // id задачи начинает отсчет от 1
+    private final HistoryManager historyManager = Managers.getDefaultHistory();
+
+    HashMap<Integer, Task> tasks = new HashMap<>(); // Хранение задач
+    HashMap<Integer, Epic> epics = new HashMap<>(); // Хранение эпиков
+    HashMap<Integer, SubTask> subTasks = new HashMap<>(); // Хранение подзадач
 
     @Override
     public void createNewTask(Task task) {
@@ -165,7 +172,7 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public Task getTaskById(int id) {
         Task task = tasks.get(id);
-        Managers.getDefaultHistory().addTaskInHistory(task);
+        historyManager.addTaskInHistory(task);
         return task;
     }
     // Метод, выводящий задачу по id.
@@ -173,7 +180,7 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public Epic getEpicById(int id) {
         Epic epic = epics.get(id);
-        Managers.getDefaultHistory().addTaskInHistory(epic);
+        historyManager.addTaskInHistory(epic);
         return epic;
     }
     // Метод, выводящий эпик по id.
@@ -181,7 +188,7 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public SubTask getSubTaskById(int id) {
         SubTask subTask = subTasks.get(id);
-        Managers.getDefaultHistory().addTaskInHistory(subTask);
+        historyManager.addTaskInHistory(subTask);
         return subTask;
     }
     // Метод, выводящий подзадачу по id.
@@ -221,4 +228,8 @@ public class InMemoryTaskManager implements TaskManager {
     }
     // Страшная консрукция, которая проверяет и меняет статус у эпика.
     // Можно было конечно попробовать enum, но наставник посоветовал отложить это до следующего спринта =)
+    @Override
+    public List<Task> getHistory() {
+       return historyManager.getHistory();
+    }
 }

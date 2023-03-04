@@ -1,14 +1,18 @@
 /* Доброго времени суток!
 Сделал тестер, который можно вызвать из меню. Команда - 99
-
+Тестер вынес в отлельный класс.
+С вызовом для печати созданных задач разобрался. Заблудился в коде немного.
+Остальные замечания тоже поправил.
  */
 
 import model.Epic;
 import model.SubTask;
 import model.Task;
 import model.TaskStatus;
+import service.HistoryManager;
 import service.Managers;
 import service.TaskManager;
+import service.Test;
 
 import java.util.Scanner;
 
@@ -16,6 +20,7 @@ public class Main {
 
     public static void main(String[] args) {
         TaskManager taskManager = Managers.getDefault();
+        HistoryManager historyManager = Managers.getDefaultHistory();
         Scanner scanner = new Scanner(System.in);
 
 
@@ -146,7 +151,8 @@ public class Main {
                     Managers.getDefaultHistory().getHistory();
                     System.out.println(Managers.getDefaultHistory().getHistory());
                 case "99":
-                    test(taskManager);
+                    Test test = new Test();
+                    test.testSprint4(taskManager, historyManager);
                     break;
                 case "0":
                     return;
@@ -180,31 +186,5 @@ public class Main {
         System.out.println("20 - get tasks call history");
         System.out.println("99 - test");
         System.out.println("0 - exit");
-    }
-
-    public static void test(TaskManager taskManager) {
-        Task task = new Task("taskName", "taskDescription");
-        taskManager.createNewTask(task);
-        System.out.println(task);
-
-        Epic epic = new Epic("epicName", "epicDescription");
-        taskManager.createNewEpic(epic);
-        System.out.println(epic);
-
-        SubTask subTask = new SubTask("subTaskName", "subTaskDescription", epic.getId());
-        taskManager.createNewSubTask(subTask);
-        System.out.println(subTask);
-
-        taskManager.getTaskById(1);
-        System.out.println(taskManager.tasks.get(1));
-
-        taskManager.getEpicById(2);
-        System.out.println(taskManager.epics.get(2));
-
-        taskManager.getSubTaskById(3);
-        System.out.println(taskManager.subTasks.get(3));
-
-        Managers.getDefaultHistory().getHistory();
-        System.out.println(Managers.getDefaultHistory().getHistory());
     }
 }

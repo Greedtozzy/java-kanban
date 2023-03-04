@@ -2,9 +2,11 @@ package service;
 
 import model.Task;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class InMemoryHistoryManager implements HistoryManager {
+    List<Task> taskCallHistory = new ArrayList<>();
     @Override
     public List<Task> getHistory() {
         return taskCallHistory;
@@ -13,10 +15,10 @@ public class InMemoryHistoryManager implements HistoryManager {
 
     @Override
     public void addTaskInHistory(Task task) {
-        if (taskCallHistory.size() < 10) {
-            taskCallHistory.add(task);
-        } else {
-            taskCallHistory.remove(0);
+        if (task != null) {
+            if (taskCallHistory.size() > 10) {
+                taskCallHistory.remove(0);
+            }
             taskCallHistory.add(task);
         }
     }
