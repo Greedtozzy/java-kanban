@@ -47,6 +47,7 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void deleteAllTasks() {
         tasks.clear();
+
     }
     // Метод, удаляющий все задачи
 
@@ -69,12 +70,14 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void deleteTaskById(int taskId) {
+        historyManager.remove(taskId);
         tasks.remove(taskId);
     }
     // Метод, удаляющий задачу по требуемуму id
 
     @Override
     public void deleteEpicById(int epicId) {
+        historyManager.remove(epicId);
         Epic epic = epics.remove(epicId);
         if(epic !=null){
             for (Integer subtaskId : epic.getSubTasksIds()) {
@@ -88,6 +91,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void deleteSubTaskById(int subTaskId) {
+        historyManager.remove(subTaskId);
         SubTask subTask = subTasks.remove(subTaskId);
         if (subTask != null) {
             int epicId = subTask.getEpicId();
@@ -226,8 +230,7 @@ public class InMemoryTaskManager implements TaskManager {
             epic.setStatus(TaskStatus.NEW);
         }
     }
-    // Страшная консрукция, которая проверяет и меняет статус у эпика.
-    // Можно было конечно попробовать enum, но наставник посоветовал отложить это до следующего спринта =)
+    // Метод, который проверяет и меняет статус у эпика.
     @Override
     public List<Task> getHistory() {
        return historyManager.getHistory();
