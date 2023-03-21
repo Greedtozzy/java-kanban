@@ -14,41 +14,61 @@ public class InMemoryHistoryManager implements HistoryManager {
 
     @Override
     public void remove(int id) {
-        if (nodes.containsKey(id)) {
-            nodes.remove(id);
+        final Node node = nodes.remove(id);
+        if (node == null) {
+            return;
+        }
+        if (node.prev != null) {
+            node.prev.next = node.next;
+            if (node.next == null) {
+                tail = node.prev;
+            } else {
+                node.next.prev = node.prev;
+            }
+        } else {
+            head = node.next;
+            if (head == null) {
+                tail = null;
+            } else {
+                tail.prev = null;
+            }
         }
     }
     // Метод, удаляющий задачу из истории просмотров.
 
     @Override
     public void addTaskInHistory(Task task) {
-        if (nodes.containsKey(task.getId())) {
-            remove(task.getId());
+        if (task != null) {
+            if (nodes.containsKey(task.getId())) {
+                remove(task.getId());
+            }
+            linkLast(task);
         }
-        linkLast(task);
     }
     // Метод, добавляющий задачу в список. Используется после обращения к ней. Так-же проверяет длину списка.
 
-    public void linkLast(Task task) {
-        if (task !=null) {
-            final Node<Task> oldTail = tail;
-            final Node<Task> newNode = new Node<>(oldTail, task, null);
-            tail = newNode;
-            if (oldTail == null)
-                head = newNode;
-            else
-                oldTail.next = newNode;
-            nodes.put(task.getId(), newNode);
+    private void linkLast(Task task) {
+        final Node<Task> node = new Node<>(tail, task, null);
+        if (head == null) {
+            head = node;
+        } else {
+            tail.next = node;
         }
+        tail = node;
+        nodes.put(task.getId(), node);
     }
+    // Метод, добавляющий новый узел в мапу истории.
 
-    public List<Task> getTasks() {
+    private List<Task> getTasks() {
         List<Task> tasks = new ArrayList<>();
-        for (Node<Task> node : nodes.values()) {
+        Node<Task> node = head;
+        while (node != null) {
             tasks.add(node.data);
+            node = node.next;
         }
         return tasks;
     }
+    // Метод, заливающий значения мапы в список.
 
     class Node<E> {
         public E data;

@@ -18,28 +18,32 @@ public class InMemoryTaskManager implements TaskManager {
     HashMap<Integer, SubTask> subTasks = new HashMap<>(); // Хранение подзадач
 
     @Override
-    public void createNewTask(Task task) {
+    public int createNewTask(Task task) {
         tasks.put(id, task);
-        task.setId(id++);
+        task.setId(id);
+        return id++;
     }
     // Метод, создающий новую задачу
 
     @Override
-    public void createNewEpic(Epic epic) {
+    public int createNewEpic(Epic epic) {
         epics.put(id, epic);
-        epic.setId(id++);
+        epic.setId(id);
+        return id++;
     }
     // Метод, создающий новый эпик
 
     @Override
-    public void createNewSubTask(SubTask subTask) {
+    public int createNewSubTask(SubTask subTask) {
         if (epics.containsKey(subTask.getEpicId())) {
             subTasks.put(id, subTask);
             epics.get(subTask.getEpicId()).addSubTaskId(id);
-            subTask.setId(id++);
+            subTask.setId(id);
             checkEpicStatus(subTask.getEpicId());
+            return id++;
         } else {
             System.out.println("Вы пытаетесь добавить подзадачу к не существующему эпику. Проверьте epicId.");
+            return 0;
         }
     }
     // Метод, создающий новую подзадачу
@@ -79,8 +83,9 @@ public class InMemoryTaskManager implements TaskManager {
     public void deleteEpicById(int epicId) {
         historyManager.remove(epicId);
         Epic epic = epics.remove(epicId);
-        if(epic !=null){
+        if(epic !=null) {
             for (Integer subtaskId : epic.getSubTasksIds()) {
+                historyManager.remove(subtaskId);
                 subTasks.remove(subtaskId);
             }
         }

@@ -1,4 +1,4 @@
-package Test;
+package test;
 
 import model.Epic;
 import model.SubTask;
@@ -11,51 +11,50 @@ import java.util.Scanner;
 
 public class Test {
     TaskManager taskManager = Managers.getDefault();
-    Scanner scanner = new Scanner(System.in);
     public void testSprint4() {
         Task task = new Task("taskName", "taskDescription");
-        taskManager.createNewTask(task);
+        int task1 = taskManager.createNewTask(task);
         System.out.println(task);
 
         Epic epic = new Epic("epicName", "epicDescription");
-        taskManager.createNewEpic(epic);
+        int epic1 = taskManager.createNewEpic(epic);
         System.out.println(epic);
 
         SubTask subTask = new SubTask("subTaskName", "subTaskDescription", epic.getId());
-        taskManager.createNewSubTask(subTask);
+        int subTask1 = taskManager.createNewSubTask(subTask);
         System.out.println(subTask);
 
-        System.out.println(taskManager.getTaskById(1));
-        System.out.println(taskManager.getEpicById(2));
-        System.out.println(taskManager.getSubTaskById(3));
+        System.out.println(taskManager.getTaskById(task1));
+        System.out.println(taskManager.getEpicById(epic1));
+        System.out.println(taskManager.getSubTaskById(subTask1));
         System.out.println(taskManager.getHistory());
     }
 
     public void testSprint5() {
-        taskManager.createNewTask(new Task("taskName1", "taskDescription1"));
-        taskManager.createNewTask(new Task("taskName2", "taskDescription2"));
-        taskManager.createNewEpic(new Epic("epicName1", "epicDescription1"));
-        taskManager.createNewSubTask(new SubTask("subTaskName1", "subTaskDescription1", 3));
-        taskManager.createNewSubTask(new SubTask("subTaskName2", "subTaskDescription2", 3));
-        taskManager.createNewSubTask(new SubTask("subTaskName3", "subTaskDescription3", 3));
-        taskManager.createNewEpic(new Epic("epicName2", "epicDescription2"));
-        taskManager.getTaskById(2);
+        int task1 = taskManager.createNewTask(new Task("taskName1", "taskDescription1"));
+        int task2 = taskManager.createNewTask(new Task("taskName2", "taskDescription2"));
+        int epic1 = taskManager.createNewEpic(new Epic("epicName1", "epicDescription1"));
+        int subTask1 = taskManager.createNewSubTask(new SubTask("subTaskName1", "subTaskDescription1", epic1));
+        int subTask2 = taskManager.createNewSubTask(new SubTask("subTaskName2", "subTaskDescription2", epic1));
+        int subTask3 = taskManager.createNewSubTask(new SubTask("subTaskName3", "subTaskDescription3", epic1));
+        int epic2 = taskManager.createNewEpic(new Epic("epicName2", "epicDescription2"));
+        taskManager.getTaskById(task2);
         System.out.println(taskManager.getHistory());
-        taskManager.getTaskById(2);
+        taskManager.getTaskById(task2);
         System.out.println(taskManager.getHistory());
-        taskManager.getEpicById(7);
-//        System.out.println(taskManager.getHistory());
-        taskManager.getEpicById(3);
-//        System.out.println(taskManager.getHistory());
-        taskManager.getSubTaskById(5);
+        taskManager.getEpicById(epic2);
         System.out.println(taskManager.getHistory());
-        taskManager.deleteTaskById(2);
+        taskManager.getEpicById(epic1);
         System.out.println(taskManager.getHistory());
-        taskManager.deleteEpicById(3);
+        taskManager.getSubTaskById(subTask2);
+        System.out.println(taskManager.getHistory());
+        taskManager.deleteTaskById(task2);
+        System.out.println(taskManager.getHistory());
+        taskManager.deleteEpicById(epic1);
         System.out.println(taskManager.getHistory());
     }
 
-    public void testMenu() {
+    public void testMenu(Scanner scanner) {
         while (true) {
             menu();
             String command = scanner.nextLine();
