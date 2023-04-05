@@ -4,13 +4,16 @@ import model.Epic;
 import model.SubTask;
 import model.Task;
 import model.TaskStatus;
+import service.FileBackedTasksManager;
 import service.Managers;
 import service.TaskManager;
 
+import java.nio.file.Path;
 import java.util.Scanner;
 
 public class Test {
     TaskManager taskManager = Managers.getDefault();
+    TaskManager fileBackedTM = Managers.getFileBacked();
     public void testSprint4() {
         Task task = new Task("taskName", "taskDescription");
         int task1 = taskManager.createNewTask(task);
@@ -52,6 +55,27 @@ public class Test {
         System.out.println(taskManager.getHistory());
         taskManager.deleteEpicById(epic1);
         System.out.println(taskManager.getHistory());
+    }
+
+    public void testSprint6_1() {
+        int task1 = fileBackedTM.createNewTask(new Task("taskName", "taskDescription"));
+        int epic1 = fileBackedTM.createNewEpic(new Epic("epicName", "epicDescription"));
+        int subtask1 = fileBackedTM.createNewSubTask(new SubTask("subTaskName", "subTaskDescription", epic1));
+        int task2 = fileBackedTM.createNewTask(new Task("taskName2", "taskDescription2"));
+        fileBackedTM.deleteTaskById(task1);
+        fileBackedTM.getSubTaskById(subtask1);
+        fileBackedTM.getTaskById(task2);
+    }
+
+    public void testSprint6_2() {
+        TaskManager loadFromFileTM = Managers.loadFromFile(Path.of("resources/recordedTasks.csv"));
+        System.out.println(loadFromFileTM.getHistory());
+        System.out.println(loadFromFileTM.getSubTaskById(3));
+        System.out.println(loadFromFileTM.getTaskById(4));
+        int taskInNewManager = loadFromFileTM.createNewTask(new Task("taskName", "taskDescription"));
+        System.out.println(loadFromFileTM.getHistory());
+        loadFromFileTM.getTaskById(5);
+        System.out.println(loadFromFileTM.getHistory());
     }
 
     public void testMenu(Scanner scanner) {

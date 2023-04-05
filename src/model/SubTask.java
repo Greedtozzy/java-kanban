@@ -1,7 +1,7 @@
 package model;
 
 public class SubTask extends Task {
-    private int epicId;
+    protected int epicId;
 
     public SubTask(String name, String description, int epicId) {
         super(name, description);
@@ -13,12 +13,13 @@ public class SubTask extends Task {
         this.epicId = epicId;
     }
 
-    public SubTask(String name, String description) {
-        super(name, description);
-    }
-
     public int getEpicId() {
         return epicId;
+    }
+
+    @Override
+    public TaskType getType() {
+        return TaskType.SUBTASK;
     }
 
     @Override
@@ -27,5 +28,10 @@ public class SubTask extends Task {
                 "Подзадача = " + name + ", " +
                 "Описание = " + description + ", " +
                 "Статус = " + status;
+    }
+
+    @Override
+    public String taskToString() {
+        return id + "," + getType() + "," + name + "," + status + "," + description + "," + epicId;
     }
 }

@@ -10,8 +10,8 @@ import java.util.HashMap;
 import java.util.List;
 
 public class InMemoryTaskManager implements TaskManager {
-    private int id = 1; // id задачи начинает отсчет от 1
-    private final HistoryManager historyManager = Managers.getDefaultHistory();
+    protected int id = 1; // id задачи начинает отсчет от 1
+    protected final HistoryManager historyManager = Managers.getDefaultHistory();
 
     HashMap<Integer, Task> tasks = new HashMap<>(); // Хранение задач
     HashMap<Integer, Epic> epics = new HashMap<>(); // Хранение эпиков

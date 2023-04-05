@@ -7,6 +7,7 @@ public class Task {
     protected String description;
     protected TaskStatus status;
     protected int id;
+//    protected TaskType type = TaskType.TASK;
 
     public Task(String name, String description) {
         this.name = name;
@@ -53,6 +54,10 @@ public class Task {
         this.description = description;
     }
 
+    public TaskType getType() {
+        return TaskType.TASK;
+    }
+
     @Override
     public String toString() {
         return "id = " + id + ", " +
@@ -63,6 +68,10 @@ public class Task {
     /* Переписал переопределение toString, чтобы список был максимально информативный и читаемый.
     Так-же отдельно переопределил его в наследниках, что-бы поля назывались верно.
     */
+
+    public String taskToString() {
+        return id + "," + getType() + "," + name + "," + status + "," + description;
+    }
 
     @Override
     public boolean equals(Object o) {
