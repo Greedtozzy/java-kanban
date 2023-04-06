@@ -79,32 +79,6 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         }
     }
 
-//    private String taskToString(Task task) {
-//        return task.taskToString();
-//    }
-//
-//    private static Task fromString(String value) {
-//        String[] content = value.split(",");
-//        try {
-//            TaskType taskType = TaskType.valueOf(content[1]);
-//            String name = content[2];
-//            String description = content[4];
-//            TaskStatus status = TaskStatus.valueOf(content[3]);
-//            int id = Integer.parseInt(content[0]);
-//            if (taskType.equals(TASK)) {
-//                return new Task(name, description, status, id);
-//            } else if (taskType.equals(EPIC)) {
-//                return new Epic(name, description, status, id);
-//            } else if (taskType.equals(SUBTASK)) {
-//                return new SubTask(name, description, status, id, Integer.parseInt(content[5]));
-//            } else {
-//                return null;
-//            }
-//        } catch (NumberFormatException e) {
-//            throw new RuntimeException("При восстановлении задачи в качестве id передено не число", e);
-//        }
-//    }
-
     @Override
     public int createNewTask(Task task) {
         super.createNewTask(task);
