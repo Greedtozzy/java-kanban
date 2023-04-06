@@ -4,16 +4,14 @@ import model.Epic;
 import model.SubTask;
 import model.Task;
 import model.TaskStatus;
-import service.FileBackedTasksManager;
 import service.Managers;
 import service.TaskManager;
 
-import java.nio.file.Path;
 import java.util.Scanner;
 
 public class Test {
     TaskManager taskManager = Managers.getDefault();
-    TaskManager fileBackedTM = Managers.getFileBacked();
+    TaskManager fileBackedTM = Managers.getFileBackedTaskManager();
     public void testSprint4() {
         Task task = new Task("taskName", "taskDescription");
         int task1 = taskManager.createNewTask(task);
@@ -68,7 +66,7 @@ public class Test {
     }
 
     public void testSprint6_2() {
-        TaskManager loadFromFileTM = Managers.loadFromFile(Path.of("resources/recordedTasks.csv"));
+        TaskManager loadFromFileTM = Managers.loadFromFile("resources/recordedTasks.csv");
         System.out.println(loadFromFileTM.getHistory());
         System.out.println(loadFromFileTM.getSubTaskById(3));
         System.out.println(loadFromFileTM.getTaskById(4));
@@ -76,6 +74,7 @@ public class Test {
         System.out.println(loadFromFileTM.getHistory());
         loadFromFileTM.getTaskById(5);
         System.out.println(loadFromFileTM.getHistory());
+        System.out.println(loadFromFileTM.getEpicById(2).subTasksIds);
     }
 
     public void testMenu(Scanner scanner) {

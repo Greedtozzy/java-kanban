@@ -4,5 +4,6 @@ id,type,name,status,description,epic
 4,TASK,taskName2,NEW,taskDescription2
 5,TASK,taskName,NEW,taskDescription
 6,TASK,taskName,NEW,taskDescription
+7,TASK,taskName,NEW,taskDescription
 
-4,5,3,4,5
+5,3,4,5,3,4,5,2
