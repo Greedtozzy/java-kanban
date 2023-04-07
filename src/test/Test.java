@@ -7,6 +7,7 @@ import model.TaskStatus;
 import service.Managers;
 import service.TaskManager;
 
+import java.io.File;
 import java.util.Scanner;
 
 public class Test {
@@ -66,7 +67,7 @@ public class Test {
     }
 
     public void testSprint6_2() {
-        TaskManager loadFromFileTM = Managers.loadFromFile("resources/recordedTasks.csv");
+        TaskManager loadFromFileTM = Managers.loadFromFile(new File("resources/recordedTasks.csv"));
         System.out.println(loadFromFileTM.getHistory());
         System.out.println(loadFromFileTM.getSubTaskById(3));
         System.out.println(loadFromFileTM.getTaskById(4));

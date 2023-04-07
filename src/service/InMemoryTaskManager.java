@@ -240,4 +240,16 @@ public class InMemoryTaskManager implements TaskManager {
     public List<Task> getHistory() {
        return historyManager.getHistory();
     }
+
+    protected Task findTask(Integer id) {
+        final Task task = tasks.get(id);
+        if (task != null) {
+            return task;
+        }
+        final SubTask subtask = subTasks.get(id);
+        if (subtask != null) {
+            return subtask;
+        }
+        return epics.get(id);
+    }
 }

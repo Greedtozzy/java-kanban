@@ -9,46 +9,47 @@ import java.util.*;
 
 
 public class FileBackedTasksManager extends InMemoryTaskManager {
-    static File file;
-    static CSVTaskFormat csvTaskFormat = new CSVTaskFormat();
+    private final File file;
 
-    public FileBackedTasksManager(String path) {
+    public FileBackedTasksManager(File file) {
         super();
-        this.file = new File(path);
+        this.file = file;
     }
 
-    public static FileBackedTasksManager loadFromFile(String path) {
-        FileBackedTasksManager loadFromFileTaskManager = new FileBackedTasksManager(path);
+    public static FileBackedTasksManager loadFromFile(File file) {
+        FileBackedTasksManager loadFromFileTaskManager = new FileBackedTasksManager(file);
 
         try {
             String[] content = Files.readString(file.toPath()).split(System.lineSeparator());
             List<Integer> ids = new ArrayList<>();
             for (int i = 1; i < content.length - 2; i++) {
-                switch (csvTaskFormat.fromString(content[i]).getType()) {
+                switch (CSVTaskFormat.fromString(content[i]).getType()) {
                     case TASK:
-                        loadFromFileTaskManager.tasks.put(csvTaskFormat.fromString(content[i]).getId(),
-                                csvTaskFormat.fromString(content[i]));
+                        loadFromFileTaskManager.tasks.put(CSVTaskFormat.fromString(content[i]).getId(),
+                                CSVTaskFormat.fromString(content[i]));
                         break;
                     case EPIC:
-                        loadFromFileTaskManager.epics.put(csvTaskFormat.fromString(content[i]).getId(),
-                                (Epic) csvTaskFormat.fromString(content[i]));
+                        loadFromFileTaskManager.epics.put(CSVTaskFormat.fromString(content[i]).getId(),
+                                (Epic) CSVTaskFormat.fromString(content[i]));
                         break;
                     case SUBTASK:
-                        loadFromFileTaskManager.subTasks.put(csvTaskFormat.fromString(content[i]).getId(),
-                                (SubTask) csvTaskFormat.fromString(content[i]));
+                        loadFromFileTaskManager.subTasks.put(CSVTaskFormat.fromString(content[i]).getId(),
+                                (SubTask) CSVTaskFormat.fromString(content[i]));
                         break;
                 }
-                ids.add(csvTaskFormat.fromString(content[i]).getId());
+                ids.add(CSVTaskFormat.fromString(content[i]).getId());
             }
-            for (int id : csvTaskFormat.historyFromString(content[content.length-1])) {
-                if (loadFromFileTaskManager.tasks.containsKey(id)) {
-                    loadFromFileTaskManager.historyManager.addTaskInHistory(loadFromFileTaskManager.tasks.get(id));
-                } else if (loadFromFileTaskManager.epics.containsKey(id)) {
-                    loadFromFileTaskManager.historyManager.addTaskInHistory(loadFromFileTaskManager.epics.get(id));
-                } else if (loadFromFileTaskManager.subTasks.containsKey(id)) {
-                    loadFromFileTaskManager.historyManager.addTaskInHistory(loadFromFileTaskManager.subTasks.get(id));
+            List<Integer> history = new ArrayList<>();
+            for (int i = 1; i < content.length; i++) {
+                String line = content[i];
+                if (line.isEmpty()) {
+                    history = CSVTaskFormat.historyFromString(content[i + 1]);
+                    break;
                 }
             }
+                for (Integer taskId : history) {
+                    loadFromFileTaskManager.historyManager.addTaskInHistory(loadFromFileTaskManager.findTask(taskId));
+                }
             loadFromFileTaskManager.id = Collections.max(ids) + 1;
         } catch (IOException e) {
             throw new RuntimeException("IOException в методе, восстанавливающем экземпляр менеджера из файла.", e);
@@ -67,12 +68,13 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         allTasks.putAll(epics);
         allTasks. putAll(subTasks);
         try (BufferedWriter fileWriter = new BufferedWriter(new FileWriter(file))) {
-                fileWriter.write("id,type,name,status,description,epic" + System.lineSeparator());
+                fileWriter.write("id,type,name,status,description,epic");
+                fileWriter.newLine();
             for (Task task : allTasks.values()) {
-                    fileWriter.write(csvTaskFormat.taskToString(task) + System.lineSeparator());
+                    fileWriter.write(CSVTaskFormat.taskToString(task) + System.lineSeparator());
             }
             if (!getHistory().isEmpty()) {
-                    fileWriter.write(System.lineSeparator() + csvTaskFormat.historyToString(getHistory()));
+                    fileWriter.write(System.lineSeparator() + CSVTaskFormat.historyToString(getHistory()));
             }
         } catch (IOException e) {
             throw new RuntimeException("IOException в методе save", e);

@@ -35,7 +35,7 @@ public class CSVTaskFormat {
         }
     }
 
-    public String historyToString(List<Task> tasks) {
+    public static String historyToString(List<Task> tasks) {
         StringBuilder sb = new StringBuilder();
         for (Task task : tasks) {
             sb.append(task.getId() + ",");
@@ -51,7 +51,7 @@ public class CSVTaskFormat {
             try {
                 history.add(Integer.parseInt(i));
             } catch (NumberFormatException e) {
-                throw new RuntimeException("При восстановлении истории задач в качестве id передано не число", e);
+                e.getCause();
             }
         }
         return history;
