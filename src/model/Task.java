@@ -1,13 +1,16 @@
 package model;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
-public class Task {
+public class Task implements Comparable<Task> {
     protected String name;
     protected String description;
     protected TaskStatus status;
     protected int id;
-//    protected TaskType type = TaskType.TASK;
+    protected LocalDateTime startTime = null;
+    protected long durationInMinutes = 0;
 
     public Task(String name, String description) {
         this.name = name;
@@ -15,11 +18,37 @@ public class Task {
         this.status = TaskStatus.NEW;
     }
 
+    public Task(String name, String description, int id) {
+        this.name = name;
+        this.description = description;
+        this.id = id;
+    }
+
     public Task(String name, String description, TaskStatus status, int id) {
         this.name = name;
         this.description = description;
         this.status = status;
         this.id = id;
+    }
+
+    public Task(String name, String description,
+                LocalDateTime startTime, long durationInMinutes) {
+        this.name = name;
+        this.description = description;
+        this.status = TaskStatus.NEW;
+        this.startTime = startTime;
+        this.durationInMinutes = durationInMinutes;
+        this.status = TaskStatus.NEW;
+    }
+
+    public Task(String name, String description, TaskStatus status, int id,
+                LocalDateTime startTime, long durationInMinutes) {
+        this.name = name;
+        this.description = description;
+        this.status = status;
+        this.id = id;
+        this.startTime = startTime;
+        this.durationInMinutes = durationInMinutes;
     }
 
     public TaskStatus getStatus() {
@@ -58,6 +87,34 @@ public class Task {
         return TaskType.TASK;
     }
 
+    public LocalDateTime getStartTime() {
+        return startTime;
+    }
+
+    public long getDurationInMinutes() {
+        return durationInMinutes;
+    }
+
+    public LocalDateTime getEndTime() {
+        if (startTime != null) {
+            return startTime.plusMinutes(durationInMinutes);
+        } else {
+            return null;
+        }
+    }
+
+    public void setStartTime(LocalDateTime startTime) {
+        this.startTime = startTime;
+    }
+
+    public void setDurationInMinutes(long durationInMinutes) {
+        this.durationInMinutes = durationInMinutes;
+    }
+
+    public DateTimeFormatter dateTimeFormatter() {
+        return DateTimeFormatter.ofPattern("HH:mm dd.MM.yyyy");
+    }
+
     @Override
     public String toString() {
         return "id = " + id + ", " +
@@ -65,9 +122,6 @@ public class Task {
                 "Описание = " + description + ", " +
                 "Статус = " + status;
     }
-    /* Переписал переопределение toString, чтобы список был максимально информативный и читаемый.
-    Так-же отдельно переопределил его в наследниках, что-бы поля назывались верно.
-    */
 
     public String taskToString() {
         return id + "," + getType() + "," + name + "," + status + "," + description;
@@ -78,11 +132,28 @@ public class Task {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Task task = (Task) o;
-        return id == task.id && Objects.equals(name, task.name) && Objects.equals(description, task.description) && Objects.equals(status, task.status);
+        return id == task.id && durationInMinutes == task.durationInMinutes && name.equals(task.name) && description.equals(task.description) && status == task.status && Objects.equals(startTime, task.startTime);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(name, description, status, id);
+    }
+
+    @Override
+    public int compareTo(Task o) {
+        if (getStartTime() == null) {
+            return 1;
+        } else if (o.getStartTime() == null) {
+            return -1;
+        } else {
+            if (getStartTime().isAfter(o.getStartTime())) {
+                return 1;
+            } else if (getStartTime().isBefore(o.getStartTime())) {
+                return -1;
+            } else {
+                return 0;
+            }
+        }
     }
 }

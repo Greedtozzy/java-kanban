@@ -1,15 +1,33 @@
 package model;
 
-public class SubTask extends Task {
+import java.time.LocalDateTime;
+
+public class SubTask extends model.Task {
     protected int epicId;
+
 
     public SubTask(String name, String description, int epicId) {
         super(name, description);
         this.epicId = epicId;
+        this.status = TaskStatus.NEW;
     }
 
-    public SubTask(String name, String description, TaskStatus status,int id, int epicId) {
+    public SubTask(String name, String description, TaskStatus status, int id, int epicId) {
         super(name, description, status, id);
+        this.epicId = epicId;
+    }
+
+    public SubTask(String name, String description, int epicId,
+                   LocalDateTime startTime, long duration) {
+        super(name, description, startTime, duration);
+        this.epicId = epicId;
+        this.status = TaskStatus.NEW;
+    }
+
+    public SubTask(String name, String description,
+                   TaskStatus status, int id, int epicId,
+                   LocalDateTime startTime, long durationInMinutes) {
+        super(name, description, status, id, startTime, durationInMinutes);
         this.epicId = epicId;
     }
 
@@ -28,6 +46,9 @@ public class SubTask extends Task {
                 "Подзадача = " + name + ", " +
                 "Описание = " + description + ", " +
                 "Статус = " + status;
+        // +
+        //                "Время начала = " + startTime.format(dateTimeFormatter()) +
+        //                "Длительность в минутах =" + durationInMinutes
     }
 
     @Override

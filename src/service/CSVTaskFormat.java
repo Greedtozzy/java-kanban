@@ -24,7 +24,7 @@ public class CSVTaskFormat {
             if (taskType.equals(TASK)) {
                 return new Task(name, description, status, id);
             } else if (taskType.equals(EPIC)) {
-                return new Epic(name, description, status, id);
+                return new Epic(name, description, id);
             } else if (taskType.equals(SUBTASK)) {
                 return new SubTask(name, description, status, id, Integer.parseInt(content[5]));
             } else {

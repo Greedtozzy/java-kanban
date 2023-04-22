@@ -1,5 +1,3 @@
-package test;
-
 import model.Epic;
 import model.SubTask;
 import model.Task;
@@ -8,6 +6,7 @@ import service.Managers;
 import service.TaskManager;
 
 import java.io.File;
+import java.time.LocalDateTime;
 import java.util.Scanner;
 
 public class Test {
@@ -153,11 +152,9 @@ public class Test {
                     name = scanner.nextLine();
                     System.out.println("описание");
                     description = scanner.nextLine();
-                    System.out.println("статус");
-                    status = TaskStatus.valueOf(scanner.nextLine());
                     System.out.println("id");
                     id = scanner.nextInt();
-                    taskManager.updateEpic(new Epic(name, description, status, id));
+                    taskManager.updateEpic(new Epic(name, description, id));
                     break;
                 case"12":
                     System.out.println("Название");

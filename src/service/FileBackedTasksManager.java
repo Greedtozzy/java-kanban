@@ -83,21 +83,21 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
 
     @Override
     public int createNewTask(Task task) {
-        super.createNewTask(task);
+        int taskId = super.createNewTask(task);
         save();
-        return task.getId();
+        return taskId;
     }
     @Override
     public int createNewEpic(Epic epic) {
-        super.createNewEpic(epic);
+        int epicId = super.createNewEpic(epic);
         save();
-        return epic.getId();
+        return epicId;
     }
     @Override
     public int createNewSubTask(SubTask subTask) {
-        super.createNewSubTask(subTask);
+        int subTaskId = super.createNewSubTask(subTask);
         save();
-        return subTask.getId();
+        return subTaskId;
     }
 
     @Override
@@ -155,25 +155,40 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
 
     @Override
     public Task getTaskById(int id) {
-        Task task = tasks.get(id);
-        historyManager.addTaskInHistory(task);
-        save();
-        return task;
+        if (tasks.get(id) != null) {
+            Task task = tasks.get(id);
+            historyManager.addTaskInHistory(task);
+            save();
+            return task;
+        } else {
+            System.out.println("Нет задачи с таким id");
+            return null;
+        }
     }
 
     @Override
     public Epic getEpicById(int id) {
-        Epic epic = epics.get(id);
-        historyManager.addTaskInHistory(epic);
-        save();
-        return epic;
+        if (epics.get(id) != null) {
+            Epic epic = epics.get(id);
+            historyManager.addTaskInHistory(epic);
+            save();
+            return epic;
+        } else {
+            System.out.println("Нет эпика с таким id");
+            return null;
+        }
     }
 
     @Override
     public SubTask getSubTaskById(int id) {
-        SubTask subTask = subTasks.get(id);
-        historyManager.addTaskInHistory(subTask);
-        save();
-        return subTask;
+        if (subTasks.get(id) != null) {
+            SubTask subTask = subTasks.get(id);
+            historyManager.addTaskInHistory(subTask);
+            save();
+            return subTask;
+        } else {
+            System.out.println("Нет подзадачи с таким id");
+            return null;
+        }
     }
 }

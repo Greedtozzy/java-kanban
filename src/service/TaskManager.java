@@ -4,9 +4,11 @@ import model.Epic;
 import model.SubTask;
 import model.Task;
 
-import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.TreeSet;
 
 public interface TaskManager {
 
@@ -80,4 +82,14 @@ public interface TaskManager {
     void checkEpicStatus(int epicId);
 
     List<Task> getHistory();
+
+    void setTimeToEpic(Epic epic);
+
+    HashMap<LocalDateTime, Boolean> timeGrid();
+
+    boolean checkTimeInterval(Task task);
+
+    TreeSet<Task> getSortedTasks();
+
+    TreeSet<Task> getPrioritizedTasks();
 }
