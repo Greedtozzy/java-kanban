@@ -1,11 +1,12 @@
-package test;
+package service;
 
+import exceptions.TaskCreatingException;
 import model.Epic;
 import model.SubTask;
 import model.Task;
 import model.TaskStatus;
 import org.junit.jupiter.api.Test;
-import service.TaskManager;
+
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -22,17 +23,16 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
     /** Проверка создания задачи. Условие - переданная задача equals созданной.*/
     @Test
-    public void shouldTaskEqualsGetTaskAfterCreateTask() {
+    public void shouldTaskEqualsGetTaskAfterCreateTask() throws TaskCreatingException {
         int id = manager.createNewTask(task);
         assertEquals(manager.getTaskById(id), task);
     }
 
-    /** Проверка создания задачи. Условие - при попытке созадния задачи из null, задача не создасться.
-     * По запросу задачи по id (0) вернется null.*/
+    /** Проверка создания задачи. Условие - при попытке созадния задачи из null, задача не создасться.*/
     @Test
     public void shouldBeNullIfCreateNullTask() {
-        int id = manager.createNewTask(null);
-        assertNull(manager.getTaskById(id));
+        TaskCreatingException exception = assertThrows(TaskCreatingException.class ,
+                () -> manager.createNewTask(null));
     }
 
     /** Проверка создания эпика. Условие - переданный эпик equals созданному.*/
@@ -52,7 +52,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
     /** Проверка создания подзадачи. Условие - переданная подзадача equals созданной.*/
     @Test
-    public void shouldSubTaskEqualsGetSubTaskAfterCreateSubTask() {
+    public void shouldSubTaskEqualsGetSubTaskAfterCreateSubTask() throws TaskCreatingException {
         manager.createNewEpic(epic);
         int id = manager.createNewSubTask(subTask);
         assertEquals(manager.getSubTaskById(id), subTask);
@@ -63,13 +63,13 @@ abstract class TaskManagerTest<T extends TaskManager> {
     @Test
     public void shouldBeNullIfCreateNullSubTask() {
         manager.createNewEpic(epic);
-        int id = manager.createNewSubTask(null);
-        assertNull(manager.getSubTaskById(id));
+        TaskCreatingException e = assertThrows(TaskCreatingException.class,
+                () -> manager.createNewSubTask(null));
     }
 
     /** Проверка создания подзадачи. Условие - верное присвоение подзадаче номера эпика (1), переданного при создании.*/
     @Test
-    public void shouldEpicIdEquals1AfterCreateSubTask() {
+    public void shouldEpicIdEquals1AfterCreateSubTask() throws TaskCreatingException {
         manager.createNewEpic(epic);
         int id = manager.createNewSubTask(subTask);
         assertEquals(manager.getSubTaskById(id).getEpicId(), 1);
@@ -77,7 +77,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
     /** Проверка удаления всех задач. Условие - коллекция tasks.isEmpty().*/
     @Test
-    public void shouldTasksBeEmptyAfterDeleteAllTasks() {
+    public void shouldTasksBeEmptyAfterDeleteAllTasks() throws TaskCreatingException {
         manager.createNewTask(task);
         manager.deleteAllTasks();
         assertTrue(manager.getListAllTasks().isEmpty());
@@ -85,7 +85,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
     /** Проверка удаления всех эпиков. Условие - коллекции epics.isEmpty(), subTasks.isEmpty().*/
     @Test
-    public void shouldEpicsAndSubTasksListsBeEmptyAfterDeleteAllEpics() {
+    public void shouldEpicsAndSubTasksListsBeEmptyAfterDeleteAllEpics() throws TaskCreatingException {
         manager.createNewEpic(epic);
         manager.createNewSubTask(subTask);
         manager.deleteAllEpics();
@@ -96,7 +96,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
     /** Проверка удаления всех подзадач. Условие - коллекция subTasks.isEmpty,
      * коллекция id подзадач в эпике subTasksIds.isEmpty()*/
     @Test
-    public void shouldSubTasksListAndSubTasksInEpicBeEmptyAfterDeleteAllSubTasks() {
+    public void shouldSubTasksListAndSubTasksInEpicBeEmptyAfterDeleteAllSubTasks() throws TaskCreatingException {
         int id = manager.createNewEpic(epic);
         manager.createNewSubTask(subTask);
         manager.deleteAllSubTasks();
@@ -106,16 +106,18 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
     /** Проверка удаления задачи по id. Условие - запрос удаленной здачи по id - null.*/
     @Test
-    public void shouldGetTaskNullAfterDeleteTaskById() {
+    public void shouldGetTaskNullAfterDeleteTaskById() throws TaskCreatingException {
         int id = manager.createNewTask(task);
         manager.deleteTaskById(id);
+        TreeSet<Task> empty = manager.getPrioritizedTasks();
         assertNull(manager.getTaskById(id));
+        assertFalse(empty.contains(task));
     }
 
     /** Проверка удаления эпика по id. Условие - запрос удаленного эпика по id - null,
      * запрос коллекции подзадачь по id эпика возвращает пустую коллекцию.*/
     @Test
-    public void shouldGetEpicByIdAndSubTasksByEpicsIdNullAfterDeleteEpicById() {
+    public void shouldGetEpicByIdAndSubTasksByEpicsIdNullAfterDeleteEpicById() throws TaskCreatingException {
         int epicId = manager.createNewEpic(epic);
         manager.createNewSubTask(subTask);
         manager.deleteEpicById(epicId);
@@ -126,7 +128,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
     /** Проверка удаления подзадачи по id. Условие - запрос удаленной подзадачи по id - null,
      * в спискке подзадач эпика не содержится id подзадачи.*/
     @Test
-    public void shouldGetSubTaskByIdAndEpicsSubTaskListNullAfterDeleteSubTaskById() {
+    public void shouldGetSubTaskByIdAndEpicsSubTaskListNullAfterDeleteSubTaskById() throws TaskCreatingException {
         int epicId = manager.createNewEpic(epic);
         int subTaskId = manager.createNewSubTask(subTask);
         manager.deleteSubTaskById(subTaskId);
@@ -136,7 +138,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
     /** Проверка обновления задачи. Условие - запрос обновленной задачи по id equals новой задаче*/
     @Test
-    public void shouldGetTaskByIdEqualsNewTaskAfterUpdate() {
+    public void shouldGetTaskByIdEqualsNewTaskAfterUpdate() throws TaskCreatingException {
         int id = manager.createNewTask(task);
         Task updateTask = new Task("1", "1", TaskStatus.IN_PROGRESS, id,
                 LocalDateTime.of(2023, 5, 30, 0, 0), 15);
@@ -147,7 +149,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
     /** Проверка обновления эпика. Условие - запрос обновленного эпика по id equals новому эпику.
      * Возникли сложности с сравнением. Пришлось построчно пробегать по полям.*/
     @Test
-    public void shouldGetEpicByIdEqualsNewEpicAfterUpdate() {
+    public void shouldGetEpicByIdEqualsNewEpicAfterUpdate() throws TaskCreatingException {
         int epicId = manager.createNewEpic(epic);
         int subTaskId = manager.createNewSubTask(subTask);
         Epic newEpic = new Epic("2", "2", epicId);
@@ -160,7 +162,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
     /** Проверка обновления подзадачи. Условие - запрос обновленной подзадачи по id equals новой подзадаче*/
     @Test
-    public void shouldGetSubTaskByIdEqualsNewSubTaskAfterUpdate() {
+    public void shouldGetSubTaskByIdEqualsNewSubTaskAfterUpdate() throws TaskCreatingException {
         int epicId = manager.createNewEpic(epic);
         int subTaskId = manager.createNewSubTask(subTask);
         SubTask newSubTask = new SubTask("2", "2", TaskStatus.IN_PROGRESS, subTaskId, epicId,
@@ -172,10 +174,11 @@ abstract class TaskManagerTest<T extends TaskManager> {
     /** Проверка вывода списка всех задач. Условие - коллекция пустая до создания задач,
      * коллекция содержит созданные задачи.*/
     @Test
-    public void shouldArrayContainsAllTasks() {
+    public void shouldArrayContainsAllTasks() throws TaskCreatingException {
         ArrayList<Task> emptyList = manager.getListAllTasks();
         int id1 = manager.createNewTask(task);
-        int id2 = manager.createNewTask(new Task("1", "1"));
+        int id2 = manager.createNewTask(new Task("1", "1",
+                LocalDateTime.of(2023, 5, 29, 0, 0), 15));
         ArrayList<Task> allTasks = manager.getListAllTasks();
         assertTrue(emptyList.isEmpty());
         assertTrue(allTasks.contains(manager.getTaskById(id1)));
@@ -198,20 +201,21 @@ abstract class TaskManagerTest<T extends TaskManager> {
     /** Проверка вывода списка всех подзадач. Условие - коллекция пустая до создания подзадач,
      * коллекция содержит созданные подзадачи.*/
     @Test
-    public void shouldArrayContainsAllSubTasks() {
+    public void shouldArrayContainsAllSubTasks() throws TaskCreatingException {
         ArrayList<Task> emptyList = manager.getListAllSubTasks();
-        int id = manager.createNewEpic(epic);
-        int id1 = manager.createNewSubTask(subTask);
-        int id2 = manager.createNewSubTask(new SubTask("1", "1", id));
+        int epicId = manager.createNewEpic(epic);
+        int subTaskId1 = manager.createNewSubTask(subTask);
+        int subTaskId2 = manager.createNewSubTask(new SubTask("1", "1", epicId,
+                LocalDateTime.of(2023, 6, 29, 0, 0), 15));
         ArrayList<Task> allEpics = manager.getListAllSubTasks();
         assertTrue(emptyList.isEmpty());
-        assertTrue(allEpics.contains(manager.getSubTaskById(id1)));
-        assertTrue(allEpics.contains(manager.getSubTaskById(id2)));
+        assertTrue(allEpics.contains(manager.getSubTaskById(subTaskId1)));
+        assertTrue(allEpics.contains(manager.getSubTaskById(subTaskId2)));
     }
 
     /** Проверка вызова задачи по id. Условие - вызванная задача equals созданной, null при вызове по не верному id.*/
     @Test
-    public void shouldGetTaskByIdEqualsTaskAndNullUncreatedTask() {
+    public void shouldGetTaskByIdEqualsTaskAndNullUncreatedTask() throws TaskCreatingException {
         int id = manager.createNewTask(task);
         assertEquals(manager.getTaskById(id), task);
         assertNull(manager.getTaskById(2));
@@ -227,7 +231,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
     /** Проверка вызова подзадачи по id. Условие - вызванная подзадача equals созданной, null при вызове по не верному id.*/
     @Test
-    public void shouldGetSubTaskByIdEqualsSubTaskAndNullUncreatedSubTask() {
+    public void shouldGetSubTaskByIdEqualsSubTaskAndNullUncreatedSubTask() throws TaskCreatingException {
         manager.createNewEpic(epic);
         int id = manager.createNewSubTask(subTask);
         assertEquals(manager.getSubTaskById(id), subTask);
@@ -237,20 +241,21 @@ abstract class TaskManagerTest<T extends TaskManager> {
     /** Проверка вызова коллекции всех подзадач по их epicId.
      * Условие - коллекция contains все созданные подзадачи с одним epicId, коллекция пустая, если нет подзадач.*/
     @Test
-    public void shouldArrayContainsAllSubTasksByEpicId() {
+    public void shouldArrayContainsAllSubTasksByEpicId() throws TaskCreatingException {
         int epicId = manager.createNewEpic(epic);
         ArrayList<Task> emptyArray = manager.getSubTasksByEpicId(epicId);
-        int id1 = manager.createNewSubTask(subTask);
-        int id2 = manager.createNewSubTask(new SubTask("1", "1", epicId));
+        int subTaskId1 = manager.createNewSubTask(subTask);
+        int subTaskId2 = manager.createNewSubTask(new SubTask("1", "1", epicId,
+                LocalDateTime.of(2023, 6, 29, 0, 0), 15));
         ArrayList<Task> subTasksByEpicId = manager.getSubTasksByEpicId(epicId);
         assertTrue(emptyArray.isEmpty());
-        assertTrue(subTasksByEpicId.contains(manager.getSubTaskById(id1)));
-        assertTrue(subTasksByEpicId.contains(manager.getSubTaskById(id2)));
+        assertTrue(subTasksByEpicId.contains(manager.getSubTaskById(subTaskId1)));
+        assertTrue(subTasksByEpicId.contains(manager.getSubTaskById(subTaskId2)));
     }
 
     /** Проверка вызова истории. Условие - история пустая, если не было вызовов задач.*/
     @Test
-    public void shouldGetHistoryIsEmptyNoGetTasks() {
+    public void shouldGetHistoryIsEmptyNoGetTasks() throws TaskCreatingException {
         manager.createNewTask(task);
         List<Task> emptyList = manager.getHistory();
         assertTrue(emptyList.isEmpty());
@@ -258,7 +263,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
     /** Проверка вызова истории. Условие - история содержит все вызовы задач.*/
     @Test
-    public void shouldGetHistoryContainsAllGetTasks() {
+    public void shouldGetHistoryContainsAllGetTasks() throws TaskCreatingException {
         int epicId = manager.createNewEpic(epic);
         int subTaskId = manager.createNewSubTask(subTask);
         int taskId = manager.createNewTask(task);
@@ -272,7 +277,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
     /** Проверка вызова истории. Условие - повторный вызов задачи не дублирует её в истории.*/
     @Test
-    public void shouldNoDoublesInArrayIfGetTaskTwice() {
+    public void shouldNoDoublesInArrayIfGetTaskTwice() throws TaskCreatingException {
         int id = manager.createNewTask(task);
         manager.getTaskById(id);
         manager.getTaskById(id);
@@ -281,7 +286,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
     /** Проверка присваивания времени в создаваемой задаче. Условие - время в созданной задаче equals времени в передаваемой*/
     @Test
-    public void shouldTaskStartTimeEqualsStartTime() {
+    public void shouldTaskStartTimeEqualsStartTime() throws TaskCreatingException {
         int id = manager.createNewTask(task);
         assertEquals(manager.getTaskById(id).getStartTime(), task.getStartTime());
         assertEquals(manager.getTaskById(id).getEndTime(), task.getEndTime());
@@ -289,16 +294,16 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
     /** Проверка пересечений времени выполнения 2-х задач. Условие - При пересечении задача не создается, id = 0.*/
     @Test
-    public void shouldNoCreatingTaskIfTimeBook() {
+    public void shouldNoCreatingTaskIfTimeBook() throws TaskCreatingException {
         manager.createNewTask(task);
-        int id = manager.createNewTask(new Task("1", "1",
-                LocalDateTime.of(2023, 5, 30, 0, 8), 15));
-        assertEquals(id, 0);
+        TaskCreatingException exception = assertThrows(TaskCreatingException.class,
+                () -> manager.createNewTask(new Task("1", "1",
+                LocalDateTime.of(2023, 5, 30, 0, 8), 15)));
     }
 
     /** Проверка сортировки задач. Условие - верная задача должна быть первой в TreeSet*/
     @Test
-    public void shouldCorrectTaskBeFirstInGetPrioritizedTasks() {
+    public void shouldCorrectTaskBeFirstInGetPrioritizedTasks() throws TaskCreatingException {
         manager.createNewTask(task);
         manager.createNewTask(new Task("1", "1",
                 LocalDateTime.of(2023, 6, 30, 0, 0), 15));

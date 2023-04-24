@@ -1,12 +1,11 @@
-package test;
+package service;
 
+import exceptions.TaskCreatingException;
 import model.Epic;
 import model.SubTask;
 import model.Task;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import service.FileBackedTasksManager;
-import service.Managers;
 
 import java.io.File;
 import java.io.IOException;
@@ -28,28 +27,27 @@ class FileBackedTasksManagerTest extends TaskManagerTest {
 
     /** Проверка записи в файл. Условие - 1, 2 строки из файла соответствуют заданным.*/
     @Test
-    public void shouldSaveTextToFileAfterCreateTask() throws IOException {
+    public void shouldSaveTextToFileAfterCreateTask() throws IOException, TaskCreatingException {
         File file = new File("resources/recordedTasks.csv");
         int id = manager.createNewTask(task);
         manager.getTaskById(id);
         String[] content = Files.readString(file.toPath()).split(System.lineSeparator());
-        assertEquals(content[0], "id,type,name,status,description,epic");
-        assertEquals(content[1], "1,TASK,1,NEW,1");
+        assertEquals(content[0], "id,type,name,status,description,startTime,duration,epic");
+        assertEquals(content[1], "1,TASK,1,NEW,1,2023-05-30T00:00,15");
         assertEquals(content[3], "1");
     }
 
     /** Проверка развертки менеджера из файла. Условие - задача по id equals изначально созданной,
      * история содержит вызванную задачу.*/
     @Test
-    public void shouldClassContainsAllTasksAfterLoadFromFile() {
+    public void shouldClassContainsAllTasksAfterLoadFromFile() throws TaskCreatingException {
         File file = new File("resources/recordedTasks.csv");
-        Task task1 = new Task("1", "1");
-        int id = manager.createNewTask(task1);
+        int id = manager.createNewTask(task);
         int epicId = manager.createNewEpic(epic);
         manager.getTaskById(id);
         FileBackedTasksManager loadManager = FileBackedTasksManager.loadFromFile(file);
-        assertEquals(loadManager.getTaskById(id), task1);
+        assertEquals(loadManager.getTaskById(id), task);
         assertEquals(loadManager.getEpicById(epicId), epic);
-        assertTrue(loadManager.getHistory().contains(task1));
+        assertTrue(loadManager.getHistory().contains(task));
     }
 }

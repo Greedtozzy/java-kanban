@@ -1,24 +1,23 @@
 package service;
 
+import exceptions.TaskCreatingException;
 import model.Epic;
 import model.SubTask;
 import model.Task;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.TreeSet;
 
 public interface TaskManager {
 
-    int createNewTask(Task task);
+    int createNewTask(Task task) throws TaskCreatingException;
     // Метод, создающий новую задачу
 
     int createNewEpic(Epic epic);
     // Метод, создающий новый эпик
 
-    int createNewSubTask(SubTask subTask);
+    int createNewSubTask(SubTask subTask) throws TaskCreatingException;
     // Метод, создающий новую подзадачу
 
     void deleteAllTasks();
@@ -83,13 +82,9 @@ public interface TaskManager {
 
     List<Task> getHistory();
 
-    void setTimeToEpic(Epic epic);
-
-    HashMap<LocalDateTime, Boolean> timeGrid();
+//    HashMap<LocalDateTime, Boolean> timeGrid();
 
     boolean checkTimeInterval(Task task);
-
-    TreeSet<Task> getSortedTasks();
 
     TreeSet<Task> getPrioritizedTasks();
 }

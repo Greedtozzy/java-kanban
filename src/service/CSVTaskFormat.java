@@ -2,6 +2,7 @@ package service;
 
 import model.*;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,13 +21,20 @@ public class CSVTaskFormat {
             String name = content[2];
             String description = content[4];
             TaskStatus status = TaskStatus.valueOf(content[3]);
+            LocalDateTime startTime;
+            if (content[5].equals("null")) {
+                startTime = null;
+            } else {
+                startTime = LocalDateTime.parse(content[5]);
+            }
+            long duration = Long.parseLong(content[6]);
             int id = Integer.parseInt(content[0]);
             if (taskType.equals(TASK)) {
-                return new Task(name, description, status, id);
+                return new Task(name, description, status, id, startTime, duration);
             } else if (taskType.equals(EPIC)) {
                 return new Epic(name, description, id);
             } else if (taskType.equals(SUBTASK)) {
-                return new SubTask(name, description, status, id, Integer.parseInt(content[5]));
+                return new SubTask(name, description, status, id, Integer.parseInt(content[7]), startTime, duration);
             } else {
                 return null;
             }

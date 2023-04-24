@@ -12,37 +12,23 @@ public class Task implements Comparable<Task> {
     protected LocalDateTime startTime = null;
     protected long durationInMinutes = 0;
 
-    public Task(String name, String description) {
+    public Task(String name,
+                String description,
+                LocalDateTime startTime,
+                long durationInMinutes) {
         this.name = name;
         this.description = description;
-        this.status = TaskStatus.NEW;
-    }
-
-    public Task(String name, String description, int id) {
-        this.name = name;
-        this.description = description;
-        this.id = id;
-    }
-
-    public Task(String name, String description, TaskStatus status, int id) {
-        this.name = name;
-        this.description = description;
-        this.status = status;
-        this.id = id;
-    }
-
-    public Task(String name, String description,
-                LocalDateTime startTime, long durationInMinutes) {
-        this.name = name;
-        this.description = description;
-        this.status = TaskStatus.NEW;
         this.startTime = startTime;
         this.durationInMinutes = durationInMinutes;
         this.status = TaskStatus.NEW;
     }
 
-    public Task(String name, String description, TaskStatus status, int id,
-                LocalDateTime startTime, long durationInMinutes) {
+    public Task(String name,
+                String description,
+                TaskStatus status,
+                int id,
+                LocalDateTime startTime,
+                long durationInMinutes) {
         this.name = name;
         this.description = description;
         this.status = status;
@@ -96,11 +82,7 @@ public class Task implements Comparable<Task> {
     }
 
     public LocalDateTime getEndTime() {
-        if (startTime != null) {
-            return startTime.plusMinutes(durationInMinutes);
-        } else {
-            return null;
-        }
+        return startTime.plusMinutes(durationInMinutes);
     }
 
     public void setStartTime(LocalDateTime startTime) {
@@ -109,10 +91,6 @@ public class Task implements Comparable<Task> {
 
     public void setDurationInMinutes(long durationInMinutes) {
         this.durationInMinutes = durationInMinutes;
-    }
-
-    public DateTimeFormatter dateTimeFormatter() {
-        return DateTimeFormatter.ofPattern("HH:mm dd.MM.yyyy");
     }
 
     @Override
@@ -124,7 +102,13 @@ public class Task implements Comparable<Task> {
     }
 
     public String taskToString() {
-        return id + "," + getType() + "," + name + "," + status + "," + description;
+        return id + "," +
+                getType() + "," +
+                name + "," +
+                status + "," +
+                description + "," +
+                startTime + "," +
+                durationInMinutes;
     }
 
     @Override

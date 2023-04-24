@@ -5,7 +5,7 @@ import java.io.File;
 
 public class Managers {
     /** Метод, возвращающий экземпляр базового менеджера*/
-    public static TaskManager getDefault() {
+    public static TaskManager getDefault()   {
         return new InMemoryTaskManager();
     }
 
@@ -21,6 +21,6 @@ public class Managers {
 
     /** Метод, возвращающий экземпляр менеджера загруженного из файла*/
     public static TaskManager loadFromFile(File file) {
-        return new FileBackedTasksManager(file).loadFromFile(file);
+        return new FileBackedTasksManager(file);
     }
 }

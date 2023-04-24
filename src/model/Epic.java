@@ -9,15 +9,19 @@ public class Epic extends model.Task {
     public List<Integer> subTasksIds = new ArrayList<>();
     private LocalDateTime endTime = null;
 
-    public Epic(String name, String description, int id) {
-        super(name, description, id);
-        this.status = TaskStatus.NEW;
-    }
-
     public Epic(String name, String description) {
-        super(name, description);
+        super(name, description, null, 0);
         status = TaskStatus.NEW;
     }
+
+    public Epic(String name, String description, int id) {
+        super(name, description, TaskStatus.NEW,
+                id, null, 0);
+    }
+
+//    public Epic(String name, String description, TaskStatus status, int id, LocalDateTime startTime, long duration) {
+//        super(name, description, status, id, startTime, duration);
+//    }
 
     public List<Integer> getSubTasksIds() {
         return subTasksIds;
@@ -43,13 +47,16 @@ public class Epic extends model.Task {
                 "Эпик = " + name + ", " +
                 "Описание = " + description + ", " +
                 "Статус = " + status;
-        // +
-        //                "Время начала = " + startTime.format(dateTimeFormatter()) +
-        //                "Длительность в минутах =" + durationInMinutes
     }
 
     @Override
     public String taskToString() {
-        return id + "," + getType() + "," + name + "," + status + "," + description;
+        return id + "," +
+                getType() + "," +
+                name + "," +
+                status + "," +
+                description + "," +
+                startTime + "," +
+                durationInMinutes;
     }
 }

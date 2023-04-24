@@ -1,5 +1,6 @@
 package service;
 
+import exceptions.TaskCreatingException;
 import model.Epic;
 import model.SubTask;
 import model.Task;
@@ -13,31 +14,28 @@ public class InMemoryTaskManager implements TaskManager {
     protected final HistoryManager historyManager = Managers.getDefaultHistory();
 
     /** Хранение задач*/
-    HashMap<Integer, Task> tasks = new HashMap<>();
+    protected final HashMap<Integer, Task> tasks = new HashMap<>();
     /** Хранение эпиков*/
-    HashMap<Integer, Epic> epics = new HashMap<>();
+    protected final HashMap<Integer, Epic> epics = new HashMap<>();
     /** Хранение подзадач*/
-    HashMap<Integer, SubTask> subTasks = new HashMap<>();
-    /** Хранение временных помежутков и информации о размещении в них задач*/
-    HashMap<LocalDateTime, Boolean> timeIntervals = timeGrid();
+    protected final HashMap<Integer, SubTask> subTasks = new HashMap<>();
     /** Хранение отсортированных задач и подзадач.*/
-    TreeSet<Task> sortedTasks = new TreeSet<>();
+    protected final TreeSet<Task> sortedTasks = new TreeSet<>(Comparator.comparing(Task::getStartTime));
 
     /** Метод, создающий новую задачу*/
     @Override
-    public int createNewTask(Task task) {
+    public int createNewTask(Task task) throws TaskCreatingException {
         if (task != null) {
             if (checkTimeInterval(task)) {
                 tasks.put(id, task);
+                sortedTasks.add(task);
                 task.setId(id);
                 return id++;
             } else {
-                System.out.println("Временной интервал занят");
-                return 0;
+                throw new TaskCreatingException("Временной интервал занят");
             }
         } else {
-            System.out.println("Задача == null");
-            return 0;
+            throw new TaskCreatingException("Задача == null");
         }
     }
 
@@ -56,28 +54,23 @@ public class InMemoryTaskManager implements TaskManager {
 
     /** Метод, создающий новую подзадачу*/
     @Override
-    public int createNewSubTask(SubTask subTask) {
-        if (subTask != null) {
-            if (checkTimeInterval(subTask)) {
-                if (epics.containsKey(subTask.getEpicId())) {
-                    subTasks.put(id, subTask);
-                    epics.get(subTask.getEpicId()).addSubTaskId(id);
-                    subTask.setId(id);
-                    checkEpicStatus(subTask.getEpicId());
-                    setTimeToEpic(epics.get(subTask.getEpicId()));
-                    return id++;
-                } else {
-                    System.out.println("Вы пытаетесь добавить подзадачу к не существующему эпику. Проверьте epicId.");
-                    return 0;
-                }
-            } else {
-                System.out.println("Временной интервал занят");
-                return 0;
-            }
-        } else {
-            System.out.println("Подзадача == null");
-            return 0;
+    public int createNewSubTask(SubTask subTask) throws TaskCreatingException {
+        if (subTask == null) {
+            throw new TaskCreatingException("Подзадача == null");
         }
+        if (!checkTimeInterval(subTask)) {
+            throw new TaskCreatingException("Временной интервал занят");
+        }
+        if (!epics.containsKey(subTask.getEpicId())) {
+            throw new TaskCreatingException("Не верный epicId");
+        }
+        subTasks.put(id, subTask);
+        sortedTasks.add(subTask);
+        epics.get(subTask.getEpicId()).addSubTaskId(id);
+        subTask.setId(id);
+        checkEpicStatus(subTask.getEpicId());
+        setTimeToEpic(epics.get(subTask.getEpicId()));
+        return id++;
     }
 
     /** Метод, удаляющий все задачи*/
@@ -109,7 +102,7 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void deleteTaskById(int taskId) {
         historyManager.remove(taskId);
-        tasks.remove(taskId);
+        sortedTasks.remove(tasks.remove(taskId));
     }
 
     /** Метод, удаляющий эпик по требуемуму id.
@@ -118,7 +111,7 @@ public class InMemoryTaskManager implements TaskManager {
     public void deleteEpicById(int epicId) {
         historyManager.remove(epicId);
         Epic epic = epics.remove(epicId);
-        if(epic !=null) {
+        if (epic !=null) {
             for (Integer subtaskId : epic.getSubTasksIds()) {
                 historyManager.remove(subtaskId);
                 subTasks.remove(subtaskId);
@@ -132,6 +125,7 @@ public class InMemoryTaskManager implements TaskManager {
     public void deleteSubTaskById(int subTaskId) {
         historyManager.remove(subTaskId);
         SubTask subTask = subTasks.remove(subTaskId);
+        sortedTasks.remove(subTask);
         if (subTask != null) {
             int epicId = subTask.getEpicId();
             epics.get(epicId).subTasksIds.remove((Integer) subTaskId);
@@ -148,7 +142,9 @@ public class InMemoryTaskManager implements TaskManager {
             if ((task.getStartTime().equals(oldTask.getStartTime()) &&
                     task.getDurationInMinutes() == oldTask.getDurationInMinutes()) ||
                     checkTimeInterval(task)) {
+                sortedTasks.remove(oldTask);
                 tasks.put(task.getId(), task);
+                sortedTasks.add(task);
             } else {
                 System.out.println("Временной интервал занят");
             }
@@ -178,13 +174,11 @@ public class InMemoryTaskManager implements TaskManager {
                     subTask.getDurationInMinutes() == oldSubTask.getDurationInMinutes()) || checkTimeInterval(subTask)) {
                 int epicId = subTasks.get(subTask.getId()).getEpicId();
                 if (epics.containsKey(subTask.getEpicId())) {
+                    sortedTasks.remove(oldSubTask);
                     subTasks.put(subTask.getId(), subTask);
+                    sortedTasks.add(subTask);
                     checkEpicStatus(epicId);
                     setTimeToEpic(epics.get(epicId));
-                    if (epicId != subTask.getEpicId()) {
-                        checkEpicStatus(subTask.getEpicId());
-                        setTimeToEpic(epics.get(subTask.getEpicId()));
-                    }
                 } else {
                     System.out.println("Нет эпика, к которому привязана эта подзадача");
                 }
@@ -301,16 +295,13 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     /** Метод, устанавливающий в епик startTime, endTime, duration*/
-    @Override
-    public void setTimeToEpic(Epic epic) {
+    protected void setTimeToEpic(Epic epic) {
         long duration = 0;
-        int checker = 0;
         if (!epic.subTasksIds.isEmpty()) {
             LocalDateTime startTime = LocalDateTime.of(99999, 1, 1, 0, 0);
             LocalDateTime endTime = LocalDateTime.of(0, 1, 1, 0, 0);
             for (int subTaskId : epic.subTasksIds) {
                 if (subTasks.get(subTaskId).getStartTime() != null) {
-                    checker++;
                     if (subTasks.get(subTaskId).getStartTime().isBefore(startTime))
                         startTime = subTasks.get(subTaskId).getStartTime();
                     if (subTasks.get(subTaskId).getEndTime().isAfter(endTime))
@@ -318,58 +309,31 @@ public class InMemoryTaskManager implements TaskManager {
                     duration += subTasks.get(subTaskId).getDurationInMinutes();
                 }
             }
-            if (checker != 0) {
                 epic.setStartTime(startTime);
                 epic.setEndTime(endTime);
                 epic.setDurationInMinutes(duration);
-            }
         }
-    }
-
-    /** Метод, возвращающий мапу с временными интервалами*/
-    @Override
-    public HashMap<LocalDateTime, Boolean> timeGrid() {
-        HashMap<LocalDateTime, Boolean> timeGrid = new HashMap<>();
-        LocalDateTime interval = LocalDateTime.of(2023, 5, 1, 0, 0);
-        while(!interval.equals(LocalDateTime.of(2024, 5, 1, 0, 0))) {
-            timeGrid.put(interval, true);
-            interval = interval.plusMinutes(15);
-        }
-        return timeGrid;
     }
 
     /** Метод, проверяющий пересечения переданной в него задачи с другими*/
     @Override
     public boolean checkTimeInterval(Task task) {
         boolean check = true;
-        if (!(task.getStartTime() == null)) {
-            LocalDateTime start = task.getStartTime();
-            LocalDateTime roundingStart = LocalDateTime.of(start.getYear(),
-                    start.getMonth(), start.getDayOfMonth(), start.getHour(),
-                    start.getMinute() - (start.getMinute() % 15));
-            for (int i = 0; i < (task.getDurationInMinutes() / 15); i++) {
-                if (!timeIntervals.get(roundingStart.plusMinutes(15L * i)).equals(true)) {
+        for (Task sortedTask : sortedTasks) {
+            if (!task.getEndTime().isBefore(sortedTask.getStartTime()) ||
+                    task.getEndTime().equals(sortedTask.getStartTime())) {
+                if (!task.getStartTime().isAfter(sortedTask.getEndTime()) ||
+                        task.getStartTime().equals(sortedTask.getEndTime())) {
                     check = false;
                 }
-                timeIntervals.put(roundingStart.plusMinutes(15L * i), false);
             }
         }
         return check;
     }
 
-    /** Метод, заполняющий список с отсортированными задачами и подзадачами.*/
-    @Override
-    public TreeSet<Task> getSortedTasks() {
-        TreeSet<Task> sorted = new TreeSet<>();
-        sorted.addAll(tasks.values());
-        sorted.addAll(subTasks.values());
-        return sorted;
-    }
-
     /** Метод, возвращающий отсортированный список задач и подзадач.*/
     @Override
     public TreeSet<Task> getPrioritizedTasks() {
-        sortedTasks = getSortedTasks();
         return sortedTasks;
     }
 }

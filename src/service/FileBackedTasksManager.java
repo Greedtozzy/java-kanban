@@ -1,5 +1,6 @@
 package service;
 
+import exceptions.TaskCreatingException;
 import model.*;
 
 import java.io.*;
@@ -18,7 +19,6 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
 
     public static FileBackedTasksManager loadFromFile(File file) {
         FileBackedTasksManager loadFromFileTaskManager = new FileBackedTasksManager(file);
-
         try {
             String[] content = Files.readString(file.toPath()).split(System.lineSeparator());
             List<Integer> ids = new ArrayList<>();
@@ -29,8 +29,11 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
                                 CSVTaskFormat.fromString(content[i]));
                         break;
                     case EPIC:
-                        loadFromFileTaskManager.epics.put(CSVTaskFormat.fromString(content[i]).getId(),
-                                (Epic) CSVTaskFormat.fromString(content[i]));
+                        Epic epic = (Epic) CSVTaskFormat.fromString(content[i]);
+                        loadFromFileTaskManager.checkTimeInterval(epic);
+                        loadFromFileTaskManager.epics.put(epic.getId(),
+                                epic);
+                        loadFromFileTaskManager.checkEpicStatus(epic.getId());
                         break;
                     case SUBTASK:
                         loadFromFileTaskManager.subTasks.put(CSVTaskFormat.fromString(content[i]).getId(),
@@ -68,7 +71,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         allTasks.putAll(epics);
         allTasks. putAll(subTasks);
         try (BufferedWriter fileWriter = new BufferedWriter(new FileWriter(file))) {
-                fileWriter.write("id,type,name,status,description,epic");
+                fileWriter.write("id,type,name,status,description,startTime,duration,epic");
                 fileWriter.newLine();
             for (Task task : allTasks.values()) {
                     fileWriter.write(CSVTaskFormat.taskToString(task) + System.lineSeparator());
@@ -82,7 +85,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     }
 
     @Override
-    public int createNewTask(Task task) {
+    public int createNewTask(Task task) throws TaskCreatingException {
         int taskId = super.createNewTask(task);
         save();
         return taskId;
@@ -94,7 +97,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         return epicId;
     }
     @Override
-    public int createNewSubTask(SubTask subTask) {
+    public int createNewSubTask(SubTask subTask) throws TaskCreatingException {
         int subTaskId = super.createNewSubTask(subTask);
         save();
         return subTaskId;
