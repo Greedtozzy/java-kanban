@@ -19,10 +19,6 @@ public class Epic extends model.Task {
                 id, null, 0);
     }
 
-//    public Epic(String name, String description, TaskStatus status, int id, LocalDateTime startTime, long duration) {
-//        super(name, description, status, id, startTime, duration);
-//    }
-
     public List<Integer> getSubTasksIds() {
         return subTasksIds;
     }

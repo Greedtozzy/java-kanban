@@ -1,5 +1,0 @@
-id,type,name,status,description,startTime,duration,epic
-1,TASK,1,NEW,1,2023-05-30T00:00,15
-2,EPIC,1,NEW,1,null,0
-
-1,2

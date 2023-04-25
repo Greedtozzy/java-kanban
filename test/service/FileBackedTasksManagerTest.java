@@ -27,7 +27,7 @@ class FileBackedTasksManagerTest extends TaskManagerTest {
 
     /** Проверка записи в файл. Условие - 1, 2 строки из файла соответствуют заданным.*/
     @Test
-    public void shouldSaveTextToFileAfterCreateTask() throws IOException, TaskCreatingException {
+    public void shouldSaveTextToFileAfterCreateTask() throws IOException {
         File file = new File("resources/recordedTasks.csv");
         int id = manager.createNewTask(task);
         manager.getTaskById(id);
@@ -40,14 +40,17 @@ class FileBackedTasksManagerTest extends TaskManagerTest {
     /** Проверка развертки менеджера из файла. Условие - задача по id equals изначально созданной,
      * история содержит вызванную задачу.*/
     @Test
-    public void shouldClassContainsAllTasksAfterLoadFromFile() throws TaskCreatingException {
+    public void shouldClassContainsAllTasksAfterLoadFromFile() {
         File file = new File("resources/recordedTasks.csv");
-        int id = manager.createNewTask(task);
         int epicId = manager.createNewEpic(epic);
+        int id = manager.createNewTask(task);
+        int subTaskId = manager.createNewSubTask(subTask);
         manager.getTaskById(id);
         FileBackedTasksManager loadManager = FileBackedTasksManager.loadFromFile(file);
         assertEquals(loadManager.getTaskById(id), task);
         assertEquals(loadManager.getEpicById(epicId), epic);
+        assertEquals(loadManager.getSubTaskById(subTaskId), subTask);
         assertTrue(loadManager.getHistory().contains(task));
+
     }
 }

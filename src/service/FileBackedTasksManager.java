@@ -1,5 +1,6 @@
 package service;
 
+import exceptions.ManagerSaveException;
 import exceptions.TaskCreatingException;
 import model.*;
 
@@ -25,19 +26,17 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
             for (int i = 1; i < content.length - 2; i++) {
                 switch (CSVTaskFormat.fromString(content[i]).getType()) {
                     case TASK:
-                        loadFromFileTaskManager.tasks.put(CSVTaskFormat.fromString(content[i]).getId(),
-                                CSVTaskFormat.fromString(content[i]));
+                        Task task = CSVTaskFormat.fromString(content[i]);
+                        loadFromFileTaskManager.tasks.put(task.getId(), task);
                         break;
                     case EPIC:
                         Epic epic = (Epic) CSVTaskFormat.fromString(content[i]);
-                        loadFromFileTaskManager.checkTimeInterval(epic);
-                        loadFromFileTaskManager.epics.put(epic.getId(),
-                                epic);
+                        loadFromFileTaskManager.epics.put(epic.getId(), epic);
                         loadFromFileTaskManager.checkEpicStatus(epic.getId());
                         break;
                     case SUBTASK:
-                        loadFromFileTaskManager.subTasks.put(CSVTaskFormat.fromString(content[i]).getId(),
-                                (SubTask) CSVTaskFormat.fromString(content[i]));
+                        SubTask subTask = (SubTask) CSVTaskFormat.fromString(content[i]);
+                        loadFromFileTaskManager.subTasks.put(subTask.getId(), subTask);
                         break;
                 }
                 ids.add(CSVTaskFormat.fromString(content[i]).getId());
@@ -55,7 +54,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
                 }
             loadFromFileTaskManager.id = Collections.max(ids) + 1;
         } catch (IOException e) {
-            throw new RuntimeException("IOException в методе, восстанавливающем экземпляр менеджера из файла.", e);
+            throw new ManagerSaveException("IOException в методе, восстанавливающем экземпляр менеджера из файла.");
         }
         for (int subTaskId : loadFromFileTaskManager.subTasks.keySet()) {
             int epicId = loadFromFileTaskManager.subTasks.get(subTaskId).getEpicId();
@@ -68,8 +67,8 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     private void save() {
         Map<Integer, Task> allTasks = new HashMap<>();
         allTasks.putAll(tasks);
-        allTasks.putAll(epics);
         allTasks. putAll(subTasks);
+        allTasks.putAll(epics);
         try (BufferedWriter fileWriter = new BufferedWriter(new FileWriter(file))) {
                 fileWriter.write("id,type,name,status,description,startTime,duration,epic");
                 fileWriter.newLine();
@@ -80,12 +79,12 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
                     fileWriter.write(System.lineSeparator() + CSVTaskFormat.historyToString(getHistory()));
             }
         } catch (IOException e) {
-            throw new RuntimeException("IOException в методе save", e);
+            throw new ManagerSaveException("IOException в методе save");
         }
     }
 
     @Override
-    public int createNewTask(Task task) throws TaskCreatingException {
+    public int createNewTask(Task task) {
         int taskId = super.createNewTask(task);
         save();
         return taskId;
@@ -97,7 +96,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         return epicId;
     }
     @Override
-    public int createNewSubTask(SubTask subTask) throws TaskCreatingException {
+    public int createNewSubTask(SubTask subTask) {
         int subTaskId = super.createNewSubTask(subTask);
         save();
         return subTaskId;

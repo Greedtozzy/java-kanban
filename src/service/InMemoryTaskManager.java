@@ -24,19 +24,17 @@ public class InMemoryTaskManager implements TaskManager {
 
     /** Метод, создающий новую задачу*/
     @Override
-    public int createNewTask(Task task) throws TaskCreatingException {
-        if (task != null) {
-            if (checkTimeInterval(task)) {
-                tasks.put(id, task);
-                sortedTasks.add(task);
-                task.setId(id);
-                return id++;
-            } else {
-                throw new TaskCreatingException("Временной интервал занят");
-            }
-        } else {
+    public int createNewTask(Task task) {
+        if (task == null) {
             throw new TaskCreatingException("Задача == null");
         }
+        if (!checkTimeInterval(task)) {
+            throw new TaskCreatingException("Временной интервал занят");
+        }
+        tasks.put(id, task);
+        sortedTasks.add(task);
+        task.setId(id);
+        return id++;
     }
 
     /** Метод, создающий новый эпик*/
@@ -54,7 +52,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     /** Метод, создающий новую подзадачу*/
     @Override
-    public int createNewSubTask(SubTask subTask) throws TaskCreatingException {
+    public int createNewSubTask(SubTask subTask) {
         if (subTask == null) {
             throw new TaskCreatingException("Подзадача == null");
         }
@@ -309,9 +307,14 @@ public class InMemoryTaskManager implements TaskManager {
                     duration += subTasks.get(subTaskId).getDurationInMinutes();
                 }
             }
-                epic.setStartTime(startTime);
-                epic.setEndTime(endTime);
-                epic.setDurationInMinutes(duration);
+            epic.setStartTime(startTime);
+            epic.setEndTime(endTime);
+            epic.setDurationInMinutes(duration);
+        } else {
+            epic.setStartTime(null);
+            epic.setEndTime(null);
+            epic.setDurationInMinutes(0);
+            epic.setStatus(TaskStatus.NEW);
         }
     }
 

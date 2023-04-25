@@ -1,6 +1,6 @@
 package exceptions;
 
-public class TaskCreatingException extends Exception {
+public class TaskCreatingException extends RuntimeException {
     String massage;
 
     public TaskCreatingException(String massage) {
