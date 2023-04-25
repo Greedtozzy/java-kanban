@@ -32,7 +32,6 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
                     case EPIC:
                         Epic epic = (Epic) CSVTaskFormat.fromString(content[i]);
                         loadFromFileTaskManager.epics.put(epic.getId(), epic);
-                        loadFromFileTaskManager.checkEpicStatus(epic.getId());
                         break;
                     case SUBTASK:
                         SubTask subTask = (SubTask) CSVTaskFormat.fromString(content[i]);
@@ -59,6 +58,10 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         for (int subTaskId : loadFromFileTaskManager.subTasks.keySet()) {
             int epicId = loadFromFileTaskManager.subTasks.get(subTaskId).getEpicId();
             loadFromFileTaskManager.epics.get(epicId).addSubTaskId(subTaskId);
+        }
+        for (Epic epic : loadFromFileTaskManager.epics.values()) {
+            loadFromFileTaskManager.setTimeToEpic(epic);
+            loadFromFileTaskManager.checkEpicStatus(epic.getId());
         }
         return loadFromFileTaskManager;
     }

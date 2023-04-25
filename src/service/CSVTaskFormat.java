@@ -33,9 +33,6 @@ public class CSVTaskFormat {
                 return new Task(name, description, status, id, startTime, duration);
             } else if (taskType.equals(EPIC)) {
                 Epic epic = new Epic(name, description, id);
-                epic.setStartTime(startTime);
-                epic.setDurationInMinutes(duration);
-                epic.getEndTime();
                 return epic;
             } else if (taskType.equals(SUBTASK)) {
                 return new SubTask(name, description, status, id, Integer.parseInt(content[7]), startTime, duration);

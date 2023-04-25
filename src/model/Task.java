@@ -98,7 +98,9 @@ public class Task implements Comparable<Task> {
         return "id = " + id + ", " +
                 "Задача = " + name + ", " +
                 "Описание = " + description + ", " +
-                "Статус = " + status;
+                "Статус = " + status + "," +
+                "Время начала = " + startTime + "," +
+                "Длительность = " + durationInMinutes;
     }
 
     public String taskToString() {
@@ -121,8 +123,9 @@ public class Task implements Comparable<Task> {
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, description, status, id);
+        return Objects.hash(name, description, status, id, startTime, durationInMinutes);
     }
+
 
     @Override
     public int compareTo(Task o) {

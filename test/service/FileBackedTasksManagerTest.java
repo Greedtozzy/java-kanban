@@ -4,6 +4,7 @@ import exceptions.TaskCreatingException;
 import model.Epic;
 import model.SubTask;
 import model.Task;
+import model.TaskStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -45,11 +46,17 @@ class FileBackedTasksManagerTest extends TaskManagerTest {
         int epicId = manager.createNewEpic(epic);
         int id = manager.createNewTask(task);
         int subTaskId = manager.createNewSubTask(subTask);
+        int subTaskId2 = manager.createNewSubTask(new SubTask("1", "1", epicId,
+                LocalDateTime.of(2023, 5, 29, 1, 30), 15));
+        manager.updateSubTask(new SubTask("1", "1", TaskStatus.DONE, subTaskId, epicId,
+                LocalDateTime.of(2023, 5, 29, 0, 0), 15));
         manager.getTaskById(id);
         FileBackedTasksManager loadManager = FileBackedTasksManager.loadFromFile(file);
-        assertEquals(loadManager.getTaskById(id), task);
-        assertEquals(loadManager.getEpicById(epicId), epic);
-        assertEquals(loadManager.getSubTaskById(subTaskId), subTask);
+        System.out.println(manager.getEpicById(epicId));
+        System.out.println(loadManager.getEpicById(epicId));
+        assertEquals(loadManager.getTaskById(id), manager.getTaskById(id));
+        assertEquals(loadManager.getEpicById(epicId), manager.getEpicById(epicId));
+        assertEquals(loadManager.getSubTaskById(subTaskId), manager.getSubTaskById(subTaskId));
         assertTrue(loadManager.getHistory().contains(task));
 
     }
