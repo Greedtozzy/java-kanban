@@ -1,6 +1,5 @@
 package service;
 
-import exceptions.TaskCreatingException;
 import model.Epic;
 import model.SubTask;
 import model.Task;
@@ -51,7 +50,7 @@ class FileBackedTasksManagerTest extends TaskManagerTest {
         manager.updateSubTask(new SubTask("1", "1", TaskStatus.DONE, subTaskId, epicId,
                 LocalDateTime.of(2023, 5, 29, 0, 0), 15));
         manager.getTaskById(id);
-        FileBackedTasksManager loadManager = FileBackedTasksManager.loadFromFile(file);
+        TaskManager loadManager = FileBackedTasksManager.loadFromFile(file);
         System.out.println(manager.getEpicById(epicId));
         System.out.println(loadManager.getEpicById(epicId));
         assertEquals(loadManager.getTaskById(id), manager.getTaskById(id));

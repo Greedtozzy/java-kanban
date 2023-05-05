@@ -63,7 +63,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
     @Test
     public void shouldBeNullIfCreateNullSubTask() {
         manager.createNewEpic(epic);
-        TaskCreatingException e = assertThrows(TaskCreatingException.class,
+        assertThrows(TaskCreatingException.class,
                 () -> manager.createNewSubTask(null));
     }
 

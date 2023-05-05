@@ -1,7 +1,6 @@
 package service;
 
 import exceptions.ManagerSaveException;
-import exceptions.TaskCreatingException;
 import model.*;
 
 import java.io.*;
@@ -11,14 +10,18 @@ import java.util.*;
 
 
 public class FileBackedTasksManager extends InMemoryTaskManager {
-    private final File file;
+    private File file;
+
+    public FileBackedTasksManager() {
+        super();
+    }
 
     public FileBackedTasksManager(File file) {
         super();
         this.file = file;
     }
 
-    public static FileBackedTasksManager loadFromFile(File file) {
+    public static TaskManager loadFromFile(File file) {
         FileBackedTasksManager loadFromFileTaskManager = new FileBackedTasksManager(file);
         try {
             String[] content = Files.readString(file.toPath()).split(System.lineSeparator());
@@ -67,7 +70,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     }
     // Метод, разворачивающий экземпляр менеджера из файла.
 
-    private void save() {
+    protected void save() {
         Map<Integer, Task> allTasks = new HashMap<>();
         allTasks.putAll(tasks);
         allTasks. putAll(subTasks);
@@ -150,6 +153,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     @Override
     public void updateEpic(Epic epic) {
         super.updateEpic(epic);
+        save();
     }
 
     @Override

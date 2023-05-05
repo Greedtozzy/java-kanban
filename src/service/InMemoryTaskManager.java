@@ -11,7 +11,7 @@ import java.util.*;
 
 public class InMemoryTaskManager implements TaskManager {
     protected int id = 1; // id задачи начинает отсчет от 1
-    protected final HistoryManager historyManager = Managers.getDefaultHistory();
+    protected HistoryManager historyManager = Managers.getDefaultHistory();
 
     /** Хранение задач*/
     protected final HashMap<Integer, Task> tasks = new HashMap<>();

@@ -1,7 +1,11 @@
 package service;
 
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 import java.io.File;
+import java.net.URI;
 
 public class Managers {
     /** Метод, возвращающий экземпляр базового менеджера*/
@@ -22,5 +26,16 @@ public class Managers {
     /** Метод, возвращающий экземпляр менеджера загруженного из файла*/
     public static TaskManager loadFromFile(File file) {
         return new FileBackedTasksManager(file);
+    }
+
+    /** Метод, возвращающий экземпляр класса Gson*/
+    public static Gson getGson() {
+        GsonBuilder gsonBuilder = new GsonBuilder();
+        return gsonBuilder.create();
+    }
+
+    /***/
+    public static TaskManager getHttpTaskManager() {
+        return new HttpTaskManager(URI.create("http://localhost:8080"));
     }
 }
