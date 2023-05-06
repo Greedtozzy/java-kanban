@@ -5,9 +5,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import com.google.gson.Gson;
@@ -18,13 +16,7 @@ public class KVServer {
     public static final int PORT = 8079;
     private final String apiToken;
     private final HttpServer server;
-    private final Map<String, List<String>> data = new HashMap<>();
-    private final List<String> tasks = new ArrayList<>();
-    private final List<String> epics = new ArrayList<>();
-    private final List<String> subTasks = new ArrayList<>();
-    private final List<String> history = new ArrayList<>();
-    private final Gson gson = new Gson();
-
+    private final Map<String, String> data = new HashMap<>();
 
     public KVServer() throws IOException {
         apiToken = generateApiToken();
@@ -50,7 +42,7 @@ public class KVServer {
                     h.sendResponseHeaders(400, 0);
                     return;
                 }
-                String value = gson.toJson(data.get(key));
+                String value = data.get(key);
                 h.sendResponseHeaders(200, 0);
                 try (OutputStream os = h.getResponseBody()) {
                     os.write(value.getBytes());
@@ -86,36 +78,7 @@ public class KVServer {
                     h.sendResponseHeaders(400, 0);
                     return;
                 }
-                switch (key) {
-                    case "tasks":
-                        if (!tasks.contains(value)) {
-                            tasks.add(value);
-                            data.put(key, tasks);
-                        }
-                        break;
-                    case "epics":
-                        if (!epics.contains(value)) {
-                            epics.add(value);
-                            data.put(key, epics);
-                        }
-                        break;
-                    case "subtasks":
-                        if (!subTasks.contains(value)) {
-                            subTasks.add(value);
-                            data.put(key, subTasks);
-                        }
-                        break;
-                    case "history":
-                        if (!history.contains(value)) {
-                            history.add(value);
-                            data.put(key, history);
-                        }
-                    default:
-                        System.out.println("Key для сохранения не верный. key указывается в пути: /save/{key} " +
-                                "и может быть tasks, epics, subTasks");
-                        h.sendResponseHeaders(400, 0);
-                        break;
-                }
+                data.put(key, value);
                 System.out.println("Значение для ключа " + key + " успешно обновлено!");
                 h.sendResponseHeaders(200, 0);
             } else {

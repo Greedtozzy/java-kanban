@@ -24,7 +24,6 @@ public class SubTasksHandle extends Handle implements HttpHandler {
         String pathPart = path.replaceFirst("/tasks/subtask", "").replaceFirst("/", "");
         switch (requestMethod) {
             case GET:
-                if (!pathPart.isBlank()) {
                     if (pathPart.equals("epic/")) {
                         int id = parseIntId(query);
                         if (id != -1) {
@@ -35,9 +34,6 @@ public class SubTasksHandle extends Handle implements HttpHandler {
                         }
                         return;
                     }
-                    send(exchange, "Запрос не доступен - " + path, 404);
-                    return;
-                }
                 if (query == null) {
                     String response = gson.toJson(manager.getListAllSubTasks());
                     send(exchange, response, 200);

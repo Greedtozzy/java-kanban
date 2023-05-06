@@ -42,10 +42,6 @@ public class EpicsHandle extends Handle implements HttpHandler {
                     }
                 }
             case POST:
-                if (!pathPart.isBlank()) {
-                    send(exchange, "Запрос не доступен - " + path, 404);
-                    return;
-                }
                 if (query != null) {
                     send(exchange, "Параметр не допустим = " + query, 404);
                     return;

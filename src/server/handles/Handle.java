@@ -45,7 +45,7 @@ public class Handle implements HttpHandler {
             return -1;
         }
         try {
-            String id = query.replaceFirst("id=", "");
+            String id = query.substring(3);
             return Integer.parseInt(id);
         } catch (NumberFormatException e) {
             return -1;

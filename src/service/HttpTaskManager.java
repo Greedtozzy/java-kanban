@@ -2,6 +2,7 @@ package service;
 
 import client.KVTaskClient;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import model.Epic;
 import model.SubTask;
 import model.Task;
@@ -22,46 +23,41 @@ public class HttpTaskManager extends FileBackedTasksManager {
 
     @Override
     protected void save() {
-        for (Task task : tasks.values()) client.put("tasks", gson.toJson(task));
-        for (Epic epic : epics.values()) client.put("epics", gson.toJson(epic));
-        for (SubTask subTask : subTasks.values()) client.put("subtasks", gson.toJson(subTask));
-        for (Task task : getHistory()) client.put("history", gson.toJson(task));
+        String jsonTasks = gson.toJson(new ArrayList<>(tasks.values()));
+        client.put("tasks", jsonTasks);
+        String jsonEpics = gson.toJson(new ArrayList<>(epics.values()));
+        client.put("epics", jsonEpics);
+        String jsonSubTasks = gson.toJson(new ArrayList<>(subTasks.values()));
+        client.put("subtasks", jsonSubTasks);
+        List<Integer> history = new ArrayList<>();
+        for (Task task : getHistory()) history.add(task.getId());
+        String jsonHistory = gson.toJson(history);
+        client.put("history", jsonHistory);
     }
 
     public static HttpTaskManager loadFromServer(URI uri, Gson gson, KVTaskClient client) {
         HttpTaskManager manager = new HttpTaskManager(uri);
-        List<String> tasksList = gson.fromJson(client.load("tasks"), ArrayList.class);
-        for (String strTask : tasksList) {
-            Task task = gson.fromJson(strTask, Task.class);
+        List<Task> tasksList = gson.fromJson(client.load("tasks"),
+                new TypeToken<ArrayList<Task>>() {}.getType());
+        for (Task task : tasksList) {
             manager.tasks.put(task.getId(), task);
         }
 
-        List<String> epicsList = gson.fromJson(client.load("epics"), ArrayList.class);
-        for (String strEpic : epicsList) {
-            Epic epic = gson.fromJson(strEpic, Epic.class);
+        List<Epic> epicsList = gson.fromJson(client.load("epics"),
+                new TypeToken<ArrayList<Epic>>() {}.getType());
+        for (Epic epic : epicsList) {
             manager.epics.put(epic.getId(), epic);
         }
 
-        String line = client.load("subtasks");
-        List<String> subTasksList = gson.fromJson(client.load("subtasks"), ArrayList.class);
-        for (String strSubTask : subTasksList) {
-            SubTask subTask = gson.fromJson(strSubTask, SubTask.class);
+        List<SubTask> subTasksList = gson.fromJson(client.load("subtasks"),
+                new TypeToken<ArrayList<SubTask>>() {}.getType());
+        for (SubTask subTask : subTasksList) {
             manager.subTasks.put(subTask.getId(), subTask);
         }
 
-        List<String> history = gson.fromJson(client.load("history"), ArrayList.class);
-        for (String strTask : history) {
-            if (strTask.contains("epicId")) {
-                SubTask subTask = gson.fromJson(strTask, SubTask.class);
-                manager.historyManager.addTaskInHistory(subTask);
-            } else if (strTask.contains("subTasksIds")) {
-                Epic epic = gson.fromJson(strTask, Epic.class);
-                manager.historyManager.addTaskInHistory(epic);
-            } else {
-                Task task = gson.fromJson(strTask, Task.class);
-                manager.historyManager.addTaskInHistory(task);
-            }
-        }
+        List<Integer> history = gson.fromJson(client.load("history"),
+                new TypeToken<ArrayList<Integer>>() {}.getType());
+        for (int id : history) manager.historyManager.addTaskInHistory(manager.findTask(id));
 
         manager.sortedTasks.addAll(manager.tasks.values());
         manager.sortedTasks.addAll(manager.subTasks.values());

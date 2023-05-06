@@ -11,9 +11,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
-
 public class TasksHandle extends Handle implements HttpHandler {
-
 
     public TasksHandle(TaskManager manager, Gson gson) {
         super(manager, gson);
@@ -28,10 +26,6 @@ public class TasksHandle extends Handle implements HttpHandler {
         int id = parseIntId(query);
         switch (requestMethod) {
             case GET:
-                if (!pathPart.isBlank()) {
-                    send(exchange, "Запрос не доступен - " + path, 404);
-                    return;
-                }
                 if (query == null) {
                     String response = gson.toJson(manager.getListAllTasks());
                     send(exchange, response, 200);
